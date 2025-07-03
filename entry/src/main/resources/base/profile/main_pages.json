@@ -13,7 +13,8 @@
     "views/Mine/AboutUS",
     "views/Mine/SetUp",
     "views/Mine/MineCollect",
-    "views/Mine/MineLike"
-
+    "views/Mine/MineLike",
+    "views/Message/MessageList",
+    "views/Message/systemInfo"
   ]
 }

@@ -1,10 +1,12 @@
 import AppRouter from '@ohos.router';
+import { UserInfo} from '../../api/UserApi.type'
 
 interface MineInfoParams {
   userId?: number;
   userName?: string;
   avatarUrl?: string;
 }
+
 @Entry
 @Component
 export struct MineInfo {

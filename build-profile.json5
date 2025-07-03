@@ -1,6 +1,20 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\LENOVO\\.ohos\\config\\default_BaideKnowledgebBase_PNUekl9V5PdPixmUP9TnxvT5LhqUZt4kran4pEc4jeM=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001B9E7807C603248410B0CCC554CD1972A5C899EEE50BBABC2A4017D9A8B8A93FAC69F8385021201C",
+          "profile": "C:\\Users\\LENOVO\\.ohos\\config\\default_BaideKnowledgebBase_PNUekl9V5PdPixmUP9TnxvT5LhqUZt4kran4pEc4jeM=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\LENOVO\\.ohos\\config\\default_BaideKnowledgebBase_PNUekl9V5PdPixmUP9TnxvT5LhqUZt4kran4pEc4jeM=.p12",
+          "storePassword": "0000001B6A6BF7E1DF70573E049619E26947357D2201345958B02CA0EDBF12D338784F383CC326D3557155"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",

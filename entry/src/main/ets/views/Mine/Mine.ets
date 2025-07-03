@@ -141,7 +141,7 @@ export struct Mine {
             //没有登录时   ----跳转到登录页面
             console.log('点击触发了');
             AppRouter.pushUrl({
-              url: RouterConstant.VIEWS_MINE_INFO
+              url: RouterConstant.PAGE_LOGIN
             })
           })
         }
@@ -157,7 +157,8 @@ export struct Mine {
             clickHandler: () => {
               console.log('点击触发了');
               AppRouter.pushUrl({
-                url: RouterConstant.VIEWS_MINE_INFO
+                url: RouterConstant.VIEWS_MINE_INFO,
+                params:{}
               })
             }
           })

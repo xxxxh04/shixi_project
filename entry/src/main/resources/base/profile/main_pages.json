@@ -1,5 +1,6 @@
 {
   "src": [
+    "pages/Advertising",
     "pages/Index",
     "pages/LoginPage",
     "pages/PrivacyPolicyPage",

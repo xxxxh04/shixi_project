@@ -126,7 +126,7 @@ export struct ArticleInfo {
     Column() {
       // 顶部标题栏
       Row({ space: 10 }) {
-        Image($r('app.media.icon_back'))
+        Image($r('app.media.icpn_back_black'))
           .width(30)
           .height(30)
           .onClick(() => {

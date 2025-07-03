@@ -2,12 +2,10 @@ import { CommonConstant } from '../contants/CommonConstant';
 import { router } from '@kit.ArkUI';
 import { RouterConstant } from '../contants/RouterConstant';
 import { showToast } from '../utils/Toast';
-import userApi from '../api/UserApi'
-import { LoginParam } from '../api/UserApi.type'
-import { UserInfo } from '../api/UserApi.type'
-
+import userApi from '../api/UserApi';
 import { PreferencesUtil } from '../utils/PreferencesUtil';
-
+import { UserInfo} from '../api/UserApi.type'
+import { LoginParam } from '../api/UserApi.type'
 // 给 TextInput 扩展一个样式方法，统一输入框样式
 @Extend(TextInput)
 function textInputStyles() {
@@ -24,10 +22,10 @@ struct LoginPage {
   @State agree: boolean = false;
 
   // 账号（必须声明为string类型，避免字面量类型问题）
-  @State account: string = '';
+  @State account: string = '123';
 
   // 密码
-  @State password: string = '';
+  @State password: string = '123';
 
   //登陆成功
   @State loginSuccess: boolean = false
@@ -38,18 +36,23 @@ struct LoginPage {
    * 登录逻辑
    */
   async login() {
+    // 账号不能为空
     if (!this.account || this.account.trim() === '') {
       showToast('账号不能为空');
       return;
     }
 
-    if (!this.password || this.password.trim() === '') {
-      showToast('密码不能为空');
+
+
+    // 没勾选协议
+    if (!this.agree) {
+      showToast('请勾选用户协议和隐私政策');
       return;
     }
 
-    if (!this.agree) {
-      showToast('请勾选用户协议和隐私政策');
+    // 密码不能为空
+    if (!this.password || this.password.trim() === '') {
+      showToast('密码不能为空');
       return;
     }
 
@@ -57,7 +60,7 @@ struct LoginPage {
       account: this.account,
       password: this.password
     }
-
+    // 调用接口登录
     try {
       const token = await userApi.userLogin(param);
       this.loginSuccess = true;
@@ -65,7 +68,6 @@ struct LoginPage {
 
       // 存储 token 到内存
       AppStorage.setOrCreate(CommonConstant.TOKEN_NAME, token);
-      console.log("1")
       // 持久化 token 到 Preferences
       await PreferencesUtil.savaData(
         CommonConstant.PREFERENCES_NAME,
@@ -89,18 +91,14 @@ struct LoginPage {
 
       // 登录成功后跳转主页
       router.replaceUrl({ url: RouterConstant.PAGE_INDEX });
-0
+
     } catch (err) {
       // 优化异常捕获，避免 err 非 Error 类型时报错
       const msg = err instanceof Error ? err.message : CommonConstant.DEFAULT_LOGIN_ERROR;
       this.errorMsg = '登录失败: ' + msg;
       showToast(this.errorMsg);
     }
-
-
   }
-
-
 
   /**
    * 页面布局

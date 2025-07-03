@@ -12,6 +12,7 @@ struct Advertising {
   // 定时器句柄
   private timerHandle: number = 0
 
+  private hasJumped: boolean = false;
   /**
    * 生命周期：页面即将显示时，启动倒计时
    */
@@ -48,6 +49,7 @@ struct Advertising {
    * 跳转到首页（根据缓存中是否存在 token 和 userInfo）
    */
   private jumpToHome() {
+    if(this.hasJumped) return;
     const token = PreferencesUtil.getData(CommonConstant.PREFERENCES_NAME, CommonConstant.TOKEN_NAME, '')
     const userInfo = PreferencesUtil.getData(CommonConstant.PREFERENCES_NAME, CommonConstant.USER_INFO, '')
 
@@ -57,6 +59,7 @@ struct Advertising {
     }
 
     router.replaceUrl({ url: RouterConstant.PAGE_INDEX })
+    this.hasJumped = true;
   }
 
   /**

@@ -8,6 +8,12 @@
     "views/Home/Home",
     "views/Home/ArticleInfo",
     "views/Learn/Learn",
-    "views/Learn/LearnTarget"
+    "views/Learn/LearnTarget",
+    "views/Mine/MineInfo",
+    "views/Mine/AboutUS",
+    "views/Mine/SetUp",
+    "views/Mine/MineCollect",
+    "views/Mine/MineLike"
+
   ]
 }

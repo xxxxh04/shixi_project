@@ -10,22 +10,31 @@ import { showToast } from '../../utils/Toast';
 @Entry
 @Component
 export struct Home {
-  // 顶部标签控制
+  // 顶部“最新”标签是否选中
   @State newDividerShow: boolean = true;
+  // 顶部“热门”标签是否选中
   @State hotDividerShow: boolean = false;
 
-  // 搜索关键字
+  // 搜索关键字双向绑定
   @State keyword: string = '';
+  // 实际用于接口请求的标题（通过 encodeURIComponent 处理）
   @State title: string = '';
 
-  // 数据相关
+  // 文章列表数据
   @State articleContentList: ArticleContentData[] = [];
+  // 文章总数
   @State total: number = 0;
+  // 当前页码
   @State page: number = 1;
+  // 每页条数
   @State pageSize: number = 7;
+  // 列表是否显示
   @State isShow: boolean = false;
+  // 是否正在下拉刷新
   @State isRefreshing: boolean = false;
+  // 是否正在加载更多
   isLoad: boolean = false;
+  // 是否显示“没有更多”文本
   @State textShow: boolean = false;
 
   /**
@@ -53,6 +62,7 @@ export struct Home {
 
     this.total = res.total;
     this.textShow = !(this.total > this.page * this.pageSize);
+    // 列表可见
     this.isShow = true;
     this.isLoad = false;
     this.isRefreshing = false;
@@ -80,6 +90,7 @@ export struct Home {
 
     this.total = res.total;
     this.textShow = !(this.total > this.page * this.pageSize);
+    // 列表可见
     this.isShow = true;
     this.isLoad = false;
     this.isRefreshing = false;
@@ -150,6 +161,7 @@ export struct Home {
       // 列表或加载中
       if (this.isShow) {
         Refresh({ refreshing: $$this.isRefreshing }) {
+          // 渲染文章列表
           List() {
             ForEach(this.articleContentList, (item: ArticleContentData) => {
               ListItem() {

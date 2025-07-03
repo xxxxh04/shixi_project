@@ -1,34 +1,41 @@
-import AppRouter from '@ohos.router';
-import { UserInfo} from '../../api/UserApi.type'
+import { CommonConstant } from '../../contants/CommonConstant'
+import { MineMenuItem } from './MineMenuItem'
 
-interface MineInfoParams {
-  userId?: number;
-  userName?: string;
-  avatarUrl?: string;
-}
+import AppRouter from '@ohos.router';
+import { RouterConstant } from '../../contants/RouterConstant';
+import type { UserInfo } from '../../api/UserApi.type'
 
 @Entry
 @Component
 export struct MineInfo {
-  private userId: number = 0;
-  private userName: string = '默认昵称';
-  private avatarUrl: string = 'app.media.icon_mine_self'; // 默认头像资源路径
+  // 声明响应式用户对象
+  // 定义用户信息状态变量
+  @State userInfo: UserInfo = {
+    id: 0,
+    account: '',
+    nickname: '登录/注册',
+    avatarUri: 'app.media.icon_mine_avatar'
+  }
 
+  // 页面出现时获取参数
   aboutToAppear() {
-    const params = AppRouter.getParams() as MineInfoParams | undefined;
-    this.userId = params?.userId ?? 0;
-    this.userName = params?.userName ?? '默认昵称';
-    this.avatarUrl = params?.avatarUrl ?? 'app.media.icon_mine_self';
+    const params = AppStorage.get<UserInfo>('userInfo');
+    if (params) {
+      this.userInfo = {
+        id: params.id,
+        account: params.account,
+        nickname: params.nickname ?? '登录/注册',
+        avatarUri: params.avatarUri ?? 'app.media.icon_mine_avatar',
+      }
+    }
   }
 
   build() {
-    Column(){
+    Column() {
       Column() {
         Navigation() {
-          // 放 UI 内容，比如 Text、Web、Column 等
-
-          // 用户信息  ----头像行
-          Row(){
+          // 用户信息 头像行
+          Row() {
             Text('头像')
               .fontSize(20)
               .fontWeight(FontWeight.Medium)
@@ -36,7 +43,7 @@ export struct MineInfo {
             Blank()
               .layoutWeight(1)
 
-            Image($r(this.avatarUrl))
+            Image(this.userInfo.avatarUri)
               .width(40)
               .height(40)
               .borderRadius(50)
@@ -46,7 +53,7 @@ export struct MineInfo {
               .height(20)
               .margin(10)
           }
-          .margin({bottom:5})
+          .margin({ bottom: 5 })
           .padding(5)
           .border({
             width: 1,
@@ -54,17 +61,16 @@ export struct MineInfo {
             radius: 10
           })
 
-
-          // 用户信息  ----昵称行
-          Row(){
-            Text('昵称').fontSize(20)
+          // 用户信息 昵称行
+          Row() {
+            Text('昵称')
+              .fontSize(20)
               .fontWeight(FontWeight.Medium)
 
             Blank()
               .layoutWeight(1)
 
-
-            Text(this.userName)
+            Text(this.userInfo.nickname)
               .fontSize(15)
               .fontColor('#6B6B6B')
 
@@ -72,34 +78,23 @@ export struct MineInfo {
               .width(20)
               .height(20)
               .margin(10)
-
           }
           .padding(5)
           .border({
             width: 1,
             color: '#E5E5E5',
             radius: 10
-
           })
+
         }
-        .title('个人信息') // ✅ 正确设置标题
-        .titleMode(NavigationTitleMode.Mini) // ✅ 设置标题模式
-        .mode(NavigationMode.Stack) // ✅ 设置导航模式
+        .title('个人信息')
+        .titleMode(NavigationTitleMode.Mini)
+        .mode(NavigationMode.Stack)
         .hideBackButton(false)
-        //.backButton(true) // ✅ 显示返回按钮（可选）
 
-
-
-
-      }.margin({left: 15, right: 15, bottom: 15})
-    }.backgroundImage($r('app.media.background'))
+      }.margin({ left: 15, right: 15, bottom: 15 })
+    }
+    .backgroundImage($r('app.media.background'))
     .backgroundImageSize(ImageSize.Cover)
   }
-
-
-
-
-
-
-
 }

@@ -65,6 +65,7 @@ struct LoginPage {
 
       // 存储 token 到内存
       AppStorage.setOrCreate(CommonConstant.TOKEN_NAME, token);
+      console.log("1")
       // 持久化 token 到 Preferences
       await PreferencesUtil.savaData(
         CommonConstant.PREFERENCES_NAME,

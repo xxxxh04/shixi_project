@@ -1,6 +1,7 @@
 import router from '@ohos.router';
 import articleContentApi from '../../api/ArticleContentApi';
 import { ArticleContentData } from '../../api/ArticleContentApi.type';
+import { showToast } from '../../utils/Toast';
 
 
 interface RouterParams {
@@ -55,6 +56,37 @@ export struct ArticleInfo {
     .padding({ bottom: 8 })
   }
 
+  // 点赞切换处理
+  async toggleLike() {
+    if (!this.articleData.id) return;
+
+    try {
+      // 调用接口
+      await articleContentApi.likeArticleContent(this.articleData.id);
+
+      // 本地切换状态和数量
+      this.articleData.isLike = !this.articleData.isLike;
+      this.articleData.likeCount += this.articleData.isLike ? 1 : -1;
+    } catch (error) {
+      // 失败了可以提示用户，或者恢复状态
+      showToast('点赞失败，请重试');
+    }
+  }
+
+  // 收藏切换处理
+  async toggleCollect() {
+    if (!this.articleData.id) return;
+
+    try {
+      await articleContentApi.collectArticleContent(this.articleData.id);
+
+      this.articleData.isCollect = !this.articleData.isCollect;
+      this.articleData.collectCount += this.articleData.isCollect ? 1 : -1;
+    } catch (error) {
+      showToast('收藏失败，请重试');
+    }
+  }
+
   @Builder StatsInfo() {
     Row() {
       Row() {
@@ -74,16 +106,14 @@ export struct ArticleInfo {
           .height(18)
           .margin({ right: 10 })
           .onClick(() => {
-            this.articleData.isLike = !this.articleData.isLike
-            this.articleData.likeCount += this.articleData.isLike ? 1 : -1
+            this.toggleLike();
           })
 
         Image(this.articleData.isCollect ? $r('app.media.icon_collect_selected') : $r('app.media.icon_collect_default'))
           .width(18)
           .height(18)
           .onClick(() => {
-            this.articleData.isCollect = !this.articleData.isCollect
-            this.articleData.collectCount += this.articleData.isCollect ? 1 : -1
+            this.toggleCollect();
           })
       }
     }

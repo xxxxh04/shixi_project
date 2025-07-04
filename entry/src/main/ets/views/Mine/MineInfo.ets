@@ -5,6 +5,9 @@ import { prompt, router } from '@kit.ArkUI'
 import { RouterConstant } from '../../contants/RouterConstant'
 import { photoAccessHelper } from '@kit.MediaLibraryKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { PreferencesUtil } from '../../utils/PreferencesUtil';
+import { CommonConstant } from '../../contants/CommonConstant';
+
 @Entry
 @Component
 export struct MineInfo {
@@ -45,24 +48,43 @@ export struct MineInfo {
   // 弹出图片选择器方法
   async openPicker() {
     try {
-      // 设置图片选择器选项
-      const photoSelectOptions = new photoAccessHelper.PhotoSelectOptions();
-      // 限制只能选择一张图片
-      photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE;
-      photoSelectOptions.maxSelectNumber = 1;
-      // 创建并实例化图片选择器
-      const photoViewPicker = new photoAccessHelper.PhotoViewPicker();
-      // 选择图片并获取图片URI
-      let uris: photoAccessHelper.PhotoSelectResult = await photoViewPicker.select(photoSelectOptions);
-      if (!uris || uris.photoUris.length === 0) {
-        return;
+      const photoSelectOptions = new photoAccessHelper.PhotoSelectOptions()
+      photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE
+      photoSelectOptions.maxSelectNumber = 1
+      const photoViewPicker = new photoAccessHelper.PhotoViewPicker()
+      const result = await photoViewPicker.select(photoSelectOptions)
+
+      if (!result || result.photoUris.length === 0) {
+        return
       }
-      // 获取选中图片的第一张URI
-      let uri: string = uris.photoUris[0];
-      this.userInfo.avatarUri = uri;
-      // this.model.setImage(uri).setFrameWidth(1000).setFrameRatio(1);
+
+      const uri = result.photoUris[0]
+      this.userInfo.avatarUri = uri
+
+      // ✅ 本地保存头像地址到 AppStorage（持久化）
+      const userInfo = AppStorage.get<UserInfo>('userInfo') ?? {
+        id: 0,
+        account: '',
+        nickname: '登录/注册',
+        avatarUri: ''
+      }
+      userInfo.avatarUri = uri
+      AppStorage.setOrCreate('userInfo', userInfo)
+
+      // ✅ 可选：PreferencesUtil 也同步保存
+      PreferencesUtil.savaData(
+        CommonConstant.PREFERENCES_NAME,
+        CommonConstant.USER_INFO,
+        JSON.stringify(userInfo)
+      )
+      router.pushUrl({                // 跳转首页并切换到“我的”Tab
+        url: RouterConstant.PAGE_INDEX,
+        params: {
+          currentIndex: 3
+        }
+      })
     } catch (e) {
-      hilog.error(0x0000, 'Home', 'openPicker' + JSON.stringify(e));
+      hilog.error(0x0000, 'MineInfo', 'openPicker error: ' + JSON.stringify(e))
     }
   }
 

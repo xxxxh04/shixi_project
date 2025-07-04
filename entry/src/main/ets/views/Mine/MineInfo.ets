@@ -1,5 +1,8 @@
 
 import type { UserInfo } from '../../api/UserApi.type'
+import userapi from '../../api/UserApi'
+import { prompt, router } from '@kit.ArkUI'
+import { RouterConstant } from '../../contants/RouterConstant'
 
 @Entry
 @Component
@@ -12,6 +15,15 @@ export struct MineInfo {
     nickname: '登录/注册',
     avatarUri: 'app.media.icon_mine_avatar'
   }
+  //用于修改昵称
+  @State showDialog: boolean = false
+  @State newNickname: string = ''
+  private dialogController: CustomDialogController = new CustomDialogController({
+    builder: (): void => this.buildDialog(),
+    cancel: (): void => {}
+  })
+
+
 
   // 页面出现时获取参数
   aboutToAppear() {
@@ -88,18 +100,92 @@ export struct MineInfo {
             color: '#E5E5E5',
             radius: 10
           })
+          .onClick(() => {
+            this.newNickname = this.userInfo.nickname
+            this.dialogController.open()
+          })
 
         }
         .title('个人信息')
         .titleMode(NavigationTitleMode.Mini)
         .mode(NavigationMode.Stack)
         .hideBackButton(false)
-
-      }//.margin({ left: 15, right: 15, bottom: 15 })
+      }
     }
     .backgroundImage($r('app.media.background'))
     .backgroundImageSize(ImageSize.Cover)
+
+
+
   }
+  @Builder
+  buildDialog() {
+    Column() {
+      Text('修改昵称')
+        .fontSize(18)
+        .fontWeight(FontWeight.Bold)
+        .padding(10)
+
+      TextInput({
+        text: this.newNickname,
+        placeholder: '请输入新昵称'
+      })
+        .onChange(value => {
+          this.newNickname = value
+        })
+        .margin(10)
+
+
+      Row() {
+        Button('取消')
+          .onClick(() => {
+            this.dialogController.close()
+          })
+          .margin(5)
+
+        Blank()
+
+
+        Button('确定')
+          .onClick(() => {
+            const newName = this.newNickname.trim() || '登录/注册';
+
+            // 调用接口更新昵称
+            userapi.editNickname({ nickname: newName })
+              .then(() => {
+                // 接口成功后，更新本地存储
+                this.userInfo.nickname = newName;
+                AppStorage.set<UserInfo>('userInfo', this.userInfo);
+
+                this.dialogController.close();
+
+                // 返回 Mine 页面，Mine 页面会在 onShow 重新加载昵称
+                // router.back();
+                router.pushUrl({                // 跳转首页并切换到“我的”Tab
+                  url: RouterConstant.PAGE_INDEX,
+                  params: {
+                    currentIndex: 3
+                  }
+                })
+
+              })
+              .catch(() => {
+                // 接口失败，提示错误
+                prompt.showToast({ message: '昵称修改失败', duration: 2000 });
+              });
+          });
+
+
+
+      }
+      .padding(10)
+    }
+    .width(300)
+    .backgroundColor('#FFF')
+    .borderRadius(10)
+    .padding(10)
+  }
+
 }
 
 

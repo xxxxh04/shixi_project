@@ -6,8 +6,6 @@ import { RouterConstant } from '../../contants/RouterConstant';
 import router from '@ohos.router';
 import prompt from '@system.prompt';
 
-
-
 @Entry
 @Component
 export struct Mine {
@@ -15,6 +13,7 @@ export struct Mine {
   // @State feedbackText: string = '';
   // @State showToast: boolean = false;
 
+  @State isLogin: boolean = false;
   // 定义用户信息状态变量
   @State userInfo: UserInfo = {
     id: 0,
@@ -24,9 +23,18 @@ export struct Mine {
   }
 
 
-  @State isLogin: boolean = false;
-  // 页面出现时获取参数
+
+
+
   aboutToAppear() {
+    this.loadUserInfo();
+  }
+
+  onShow() {
+    this.loadUserInfo();
+  }
+
+  loadUserInfo() {
     const params = AppStorage.get<UserInfo>('userInfo');
     if (params) {
       this.userInfo = {
@@ -34,15 +42,38 @@ export struct Mine {
         account: params.account,
         nickname: params.nickname ?? '登录/注册',
         avatarUri: params.avatarUri ?? 'app.media.icon_mine_avatar',
-
-      }
+      };
       this.isLogin = true;
     } else {
-      // 未登录或未保存用户信息
-      this.userInfo.nickname = '登录/注册';
-      this.userInfo.avatarUri = 'app.media.icon_mine_avatar';
+      this.userInfo = {
+        id: 0,
+        account: '',
+        nickname: '登录/注册',
+        avatarUri: 'app.media.icon_mine_avatar',
+      };
+      this.isLogin = false;
     }
   }
+
+
+  // 页面出现时获取参数
+  // aboutToAppear() {
+  //   const params = AppStorage.get<UserInfo>('userInfo');
+  //   if (params) {
+  //     this.userInfo = {
+  //       id: params.id,
+  //       account: params.account,
+  //       nickname: params.nickname ?? '登录/注册',
+  //       avatarUri: params.avatarUri ?? 'app.media.icon_mine_avatar',
+  //
+  //     }
+  //     this.isLogin = true;
+  //   } else {
+  //     // 未登录或未保存用户信息
+  //     this.userInfo.nickname = '登录/注册';
+  //     this.userInfo.avatarUri = 'app.media.icon_mine_avatar';
+  //   }
+  // }
 
 
   controller: CustomDialogController = new CustomDialogController({

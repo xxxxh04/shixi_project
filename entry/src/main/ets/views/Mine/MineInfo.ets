@@ -3,7 +3,8 @@ import type { UserInfo } from '../../api/UserApi.type'
 import userapi from '../../api/UserApi'
 import { prompt, router } from '@kit.ArkUI'
 import { RouterConstant } from '../../contants/RouterConstant'
-
+import { photoAccessHelper } from '@kit.MediaLibraryKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 @Entry
 @Component
 export struct MineInfo {
@@ -41,6 +42,32 @@ export struct MineInfo {
     }
   }
 
+  // 弹出图片选择器方法
+  async openPicker() {
+    try {
+      // 设置图片选择器选项
+      const photoSelectOptions = new photoAccessHelper.PhotoSelectOptions();
+      // 限制只能选择一张图片
+      photoSelectOptions.MIMEType = photoAccessHelper.PhotoViewMIMETypes.IMAGE_TYPE;
+      photoSelectOptions.maxSelectNumber = 1;
+      // 创建并实例化图片选择器
+      const photoViewPicker = new photoAccessHelper.PhotoViewPicker();
+      // 选择图片并获取图片URI
+      let uris: photoAccessHelper.PhotoSelectResult = await photoViewPicker.select(photoSelectOptions);
+      if (!uris || uris.photoUris.length === 0) {
+        return;
+      }
+      // 获取选中图片的第一张URI
+      let uri: string = uris.photoUris[0];
+      this.userInfo.avatarUri = uri;
+      // this.model.setImage(uri).setFrameWidth(1000).setFrameRatio(1);
+    } catch (e) {
+      hilog.error(0x0000, 'Home', 'openPicker' + JSON.stringify(e));
+    }
+  }
+
+
+
   build() {
     Column() {
       Column() {
@@ -74,6 +101,7 @@ export struct MineInfo {
             color: '#E5E5E5',
             radius: 10
           })
+          .onClick(() => this.openPicker())  // 点击头像触发图片选择
 
           // 用户信息 昵称行
           Row() {

@@ -1,6 +1,7 @@
 import router from '@ohos.router';
 import articleContentApi from '../../api/ArticleContentApi';
 import { ArticleContentData } from '../../api/ArticleContentApi.type';
+import { LearnRichText } from '../../components/LearnRichText';
 import { showToast } from '../../utils/Toast';
 
 
@@ -163,11 +164,11 @@ export struct ArticleInfo {
       // 正文内容
       Scroll() {
         Column({ space: 20 }) {
-          Text(this.articleData.content)
-            .fontSize(16)
-            .lineHeight(24)
-            .textAlign(TextAlign.Start)
-            .padding({ bottom: 30 })
+          LearnRichText({ richTextContent: this.articleData.content })
+            // .fontSize(16)
+            // .lineHeight(24)
+            // .textAlign(TextAlign.Start)
+            // .padding({ bottom: 30 })
         }
         .width('100%')
         .padding(20)

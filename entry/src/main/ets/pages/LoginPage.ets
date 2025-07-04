@@ -91,7 +91,7 @@ struct LoginPage {
 
       // 登录成功后跳转主页
       router.replaceUrl({ url: RouterConstant.PAGE_INDEX });
-
+      // router.back()
     } catch (err) {
       // 优化异常捕获，避免 err 非 Error 类型时报错
       const msg = err instanceof Error ? err.message : CommonConstant.DEFAULT_LOGIN_ERROR;

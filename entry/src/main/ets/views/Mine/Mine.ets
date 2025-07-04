@@ -3,11 +3,9 @@ import { MineMenuItem } from './MineMenuItem'
 import { UserInfo} from '../../api/UserApi.type'
 import AppRouter from '@ohos.router';
 import { RouterConstant } from '../../contants/RouterConstant';
+import router from '@ohos.router';
+import prompt from '@system.prompt';
 
-// interface UserInfo {
-//   avatar: string;  // 头像路径或 URL
-//   name: string;    // 用户名
-// }
 
 
 @Entry
@@ -157,8 +155,7 @@ export struct Mine {
             clickHandler: () => {
               console.log('点击触发了');
               AppRouter.pushUrl({
-                url: RouterConstant.VIEWS_MINE_INFO,
-                params:{}
+                url: RouterConstant.VIEWS_MINE_INFO
               })
             }
           })
@@ -221,8 +218,15 @@ export struct Mine {
             icon: $r('app.media.icon_mine_logout'),
             label: '退出登录',
             clickHandler: () => {
-              console.log('点击触发了');
-              this.controller1.open()
+              if (this.isLogin) {
+                this.controller1.open()
+              } else {
+                prompt.showToast({
+                  message: '请先登录',
+                  duration: 2000,
+                  bottom: 100,
+                })
+              }
             }
           })
 
@@ -232,19 +236,10 @@ export struct Mine {
       .width('100%')
       .height('100%')
 
-
-
-
-
     }.backgroundImage($r('app.media.background'))
     .backgroundImageSize(ImageSize.Cover)
   }
 }
-
-
-
-
-
 
 
 @CustomDialog
@@ -366,7 +361,7 @@ struct loginoutDialogComponent {
         .width('90%')
         .height(50)
         .backgroundColor('#fff')
-        // .borderRadius(12)
+          // .borderRadius(12)
         .padding(10)
         .fontSize(20)
 
@@ -402,8 +397,15 @@ struct loginoutDialogComponent {
               .backgroundColor('#FFFFFF')
               .fontColor(Color.Blue)
               .onClick(() => {
-                console.log('666')
-                this.controller.close()
+                console.log('退出登录')
+                AppStorage.delete('userInfo') // 清空登录状态
+                this.controller.close()       // 关闭弹窗
+                router.pushUrl({                // 跳转首页并切换到“我的”Tab
+                  url: RouterConstant.PAGE_INDEX,
+                  params: {
+                    currentIndex: 3
+                  }
+                })
               })
           }
           .width('50%')

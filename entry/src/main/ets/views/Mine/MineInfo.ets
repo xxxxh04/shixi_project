@@ -1,8 +1,4 @@
-import { CommonConstant } from '../../contants/CommonConstant'
-import { MineMenuItem } from './MineMenuItem'
 
-import AppRouter from '@ohos.router';
-import { RouterConstant } from '../../contants/RouterConstant';
 import type { UserInfo } from '../../api/UserApi.type'
 
 @Entry
@@ -27,6 +23,9 @@ export struct MineInfo {
         nickname: params.nickname ?? '登录/注册',
         avatarUri: params.avatarUri ?? 'app.media.icon_mine_avatar',
       }
+    }else {
+      // 未登录，设置默认头像资源名
+      this.userInfo.avatarUri = 'app.media.icon_mine_avatar'
     }
   }
 
@@ -43,7 +42,10 @@ export struct MineInfo {
             Blank()
               .layoutWeight(1)
 
-            Image(this.userInfo.avatarUri)
+
+            Image( this.userInfo.avatarUri && this.userInfo.avatarUri.startsWith('app.media.')
+              ? $r(this.userInfo.avatarUri)
+              : this.userInfo.avatarUri)
               .width(40)
               .height(40)
               .borderRadius(50)
@@ -53,7 +55,7 @@ export struct MineInfo {
               .height(20)
               .margin(10)
           }
-          .margin({ bottom: 5 })
+          .margin({ bottom: 5,left:15,right:15 })
           .padding(5)
           .border({
             width: 1,
@@ -79,6 +81,7 @@ export struct MineInfo {
               .height(20)
               .margin(10)
           }
+          .margin({ left: 15 ,right: 15})
           .padding(5)
           .border({
             width: 1,
@@ -92,9 +95,13 @@ export struct MineInfo {
         .mode(NavigationMode.Stack)
         .hideBackButton(false)
 
-      }.margin({ left: 15, right: 15, bottom: 15 })
+      }//.margin({ left: 15, right: 15, bottom: 15 })
     }
     .backgroundImage($r('app.media.background'))
     .backgroundImageSize(ImageSize.Cover)
   }
 }
+
+
+
+

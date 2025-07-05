@@ -8,6 +8,7 @@ import { IBestCalendar } from "@ibestservices/ibest-ui"
 import { LoadingComponent } from '../../components/LoadingComponent'
 import learnClockApi from '../../api/LearnClockApi'
 import { Logger } from '../../utils/Logger'
+import { CalendarComponent } from '../../components/CalendarComponent'
 
 @Entry
 @Component
@@ -100,12 +101,13 @@ export struct Clock {
 
           // 日历区域（放在容器里自动占宽）
           Column() {
-            IBestCalendar({
-              clock: true,
-              defaultSelectedDate: this.clockDate,
-              clockSuccessText: '✔',
-              unClockText: '✖'
-            })
+            // IBestCalendar({
+            //   clock: true,
+            //   defaultSelectedDate: this.clockDate,
+            //   clockSuccessText: '✔',
+            //   unClockText: '✖'
+            // })
+            CalendarComponent({ clockDates: this.clockDate })
           }
           .width('100%')
         }

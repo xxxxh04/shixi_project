@@ -1,6 +1,7 @@
+// utils/RequestUtil.ets
 import http from '@ohos.net.http'
 
-interface ChatMessage {
+export interface ChatMessage {
   role: 'system' | 'user' | 'assistant'
   content: string
 }
@@ -18,15 +19,18 @@ interface ChatChoice {
 interface ChatResponse {
   choices: ChatChoice[]
 }
-//连接deepseekAPI
-export async function chatWithDeepSeek(userMessage: string): Promise<string> {
+
+/**
+ * 调用 DeepSeek Chat API 发送多轮消息
+ * @param messages 当前的对话消息历史
+ * @param apiKey DeepSeek 的 API Key
+ * @returns 模型返回的回复内容
+ */
+export async function sendMessageToDeepSeek(messages: ChatMessage[], apiKey: string): Promise<string> {
   const requestBody: ChatRequestBody = {
     model: 'deepseek-chat',
-    messages: [
-      { role: 'system', content: 'You are a helpful assistant.' },
-      { role: 'user', content: userMessage }
-    ],
-    temperature: 0.7,
+    messages,
+    temperature: 0.7
   }
 
   const httpRequest = http.createHttp()
@@ -37,34 +41,24 @@ export async function chatWithDeepSeek(userMessage: string): Promise<string> {
         method: http.RequestMethod.POST,
         header: {
           'Content-Type': 'application/json',
-          'Authorization': 'API Key',  // 替换成你的API Key
+          'Authorization': `Bearer ${apiKey}`, // 外部传入 API Key
         },
         extraData: requestBody,
         expectDataType: http.HttpDataType.OBJECT,
       }
     )
 
-    // 打印完整响应对象方便调试
-    console.info('完整响应:', response)
-
     const result = response.result as ChatResponse | undefined
 
-    if (!result || !result.choices) {
-      console.error('接口返回格式异常，缺少 choices 字段')
-      return '无返回内容'
+    if (!result || !result.choices || result.choices.length === 0) {
+      console.error('DeepSeek 返回无内容')
+      return '（无返回内容）'
     }
 
-    if (result.choices.length > 0) {
-      return result.choices[0].message.content
-    }
-    return '无返回内容'
-  } catch (err) {
-    console.error('请求 DeepSeek 失败，错误详情:', err)
-    if (err instanceof Error) {
-      console.error('错误消息:', err.message)
-      console.error('错误堆栈:', err.stack)
-    }
-    return '请求失败'
+    return result.choices[0].message.content
+  } catch (error) {
+    console.error('请求 DeepSeek 异常:', error)
+    return '（请求失败，请检查网络或 API Key）'
   } finally {
     httpRequest.destroy()
   }

@@ -1,14 +1,16 @@
 import { CommonConstant } from '../../contants/CommonConstant'
 import { router } from '@kit.ArkUI'
 import { RouterConstant } from '../../contants/RouterConstant'
+import { PreferencesUtil } from '../../utils/PreferencesUtil'
 
-//退出登录弹窗
+// 退出登录弹窗
 @CustomDialog
 @Component
-struct loginoutDialogComponent {
+export struct loginoutDialogComponent {  // ✅ 必须 export struct，而不是 export { xxx }
   controller: CustomDialogController = new CustomDialogController({
     builder: loginoutDialogComponent()
   })
+
   build() {
     Column({ space: 20 }) {
       // 标题
@@ -17,20 +19,18 @@ struct loginoutDialogComponent {
         .fontWeight(FontWeight.Bold)
         .textAlign(TextAlign.Center)
         .width(CommonConstant.WIDTH_FULL)
-        .padding({ top:10,bottom: 6 })
+        .padding({ top: 10, bottom: 6 })
 
-      // 是否退出登录
+      // 内容
       Text('是否退出登录?')
         .textAlign(TextAlign.Center)
         .width('90%')
         .height(50)
         .backgroundColor('#fff')
-          // .borderRadius(12)
         .padding(10)
         .fontSize(20)
 
-
-      Column(){
+      Column() {
         Divider()
           .strokeWidth(1)
           .color('#CCCCCC')
@@ -48,27 +48,31 @@ struct loginoutDialogComponent {
 
           // 确认按钮区域，包含左边框
           Row() {
-            // 模拟左边框
             Column()
               .width(1)
               .height('100%')
               .backgroundColor('#CCCCCC')
 
-            // 确认按钮
             Button('确认', { type: ButtonType.Normal })
               .width(CommonConstant.WIDTH_FULL)
               .height(CommonConstant.HEIGHT_FULL)
               .backgroundColor('#FFFFFF')
               .fontColor(Color.Blue)
-              .onClick(() => {
+              .onClick(async () => {
                 console.log('退出登录')
-                AppStorage.delete('userInfo') // 清空登录状态
-                this.controller.close()       // 关闭弹窗
-                router.pushUrl({                // 跳转首页并切换到“我的”Tab
+                // 删除 AppStorage 数据
+                AppStorage.delete(CommonConstant.USER_INFO)
+                AppStorage.delete(CommonConstant.TOKEN_NAME)
+
+                // 删除持久化数据
+                await PreferencesUtil.delAllData(CommonConstant.PREFERENCES_NAME, CommonConstant.TOKEN_NAME)
+                await PreferencesUtil.delAllData(CommonConstant.PREFERENCES_NAME, CommonConstant.USER_INFO)
+
+                // 关闭弹窗 + 跳转
+                this.controller.close()
+                router.pushUrl({
                   url: RouterConstant.PAGE_INDEX,
-                  params: {
-                    currentIndex: 3
-                  }
+                  params: { currentIndex: 3 }
                 })
               })
           }
@@ -87,7 +91,6 @@ struct loginoutDialogComponent {
       .width(CommonConstant.WIDTH_FULL)
       .backgroundColor('#FFFFFF')
       .borderRadius(20)
-
     }
     .margin({ top: 10 })
     .width(CommonConstant.WIDTH_FULL)
@@ -95,5 +98,3 @@ struct loginoutDialogComponent {
     .borderRadius(5)
   }
 }
-
-export { loginoutDialogComponent }

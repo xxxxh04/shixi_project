@@ -18,6 +18,7 @@
     "views/Message/systemInfo",
     "views/Learn/Clock",
     "views/Learn/LearnTool",
-    "views/Learn/ClockRecord"
+    "views/Learn/ClockRecord",
+    "views/Learn/LearnContent"
   ]
 }

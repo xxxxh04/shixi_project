@@ -16,7 +16,9 @@ export struct MineCollect {
   async aboutToAppear() {
     await this.loadCollectList()
   }
-
+  async onPageShow() {
+    await this.loadCollectList()
+  }
   /**
    * 加载我的收藏
    */

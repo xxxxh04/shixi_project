@@ -10,7 +10,7 @@ export struct ChatPage {
   @State error: string = ''
 
   // ✅ 替换为你的实际 API Key（可以改成常量或配置项）
-  private readonly apiKey: string = 'sk-72c98ee8ef8647368e2a30f65fdc0d46'
+  private readonly apiKey: string = ''
 
   async send() {
     if (!this.userInput.trim()) {

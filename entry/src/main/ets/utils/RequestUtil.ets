@@ -37,7 +37,7 @@ export async function chatWithDeepSeek(userMessage: string): Promise<string> {
         method: http.RequestMethod.POST,
         header: {
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer sk-ff5f28872a6a4dad8a714fe045874140',  // 替换成你的API Key
+          'Authorization': 'API Key',  // 替换成你的API Key
         },
         extraData: requestBody,
         expectDataType: http.HttpDataType.OBJECT,

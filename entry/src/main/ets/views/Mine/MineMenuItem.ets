@@ -6,10 +6,9 @@ export struct MineMenuItem {
   @Require @Param label: string;       // 显示文本
   @Param clickHandler: () => void = () => {};  // 可选回调，给默认空函数，避免报错
 
-
   build() {
     Row()
-  {
+    {
 
       Image(this.icon)
         .width(40)
@@ -31,11 +30,6 @@ export struct MineMenuItem {
         .margin(10)
     }     .width('100%')
     .margin({ left: 20, right: 20, bottom: 5 })
-    .border({
-      width: 1,
-      color: '#E5E5E5',
-      radius: 20,
-    })
     .alignItems(VerticalAlign.Center)
     .padding({ left: 10, right: 10 })
     .onClick(() => {

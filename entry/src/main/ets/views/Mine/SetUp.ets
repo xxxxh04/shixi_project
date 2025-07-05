@@ -2,10 +2,50 @@ import AppRouter from '@ohos.router';
 import { RouterConstant } from '../../contants/RouterConstant';
 import { SettingItem } from './SettingItem';
 import promptAction from '@ohos.promptAction';
+import { CommonConstant } from '../../contants/CommonConstant';
+import { UserInfo } from '../../api/UserApi.type';
 
 @Entry
 @Component
 export struct SetUp {
+
+  // 是否登录
+  @State isLogin: boolean = false;
+  // 定义用户信息状态变量
+  @State userInfo: UserInfo = {
+    id: 0,
+    account: '',
+    nickname: '登录/注册',
+    avatarUri: 'app.media.icon_mine_avatar'
+  }
+  aboutToAppear() {
+    this.loadUserInfo();
+  }
+  onShow() {
+    this.loadUserInfo();
+  }
+  loadUserInfo() {
+    const params = AppStorage.get<UserInfo>('userInfo');
+    if (params) {
+      this.userInfo = {
+        id: params.id,
+        account: params.account,
+        nickname: params.nickname ?? '登录/注册',
+        avatarUri: params.avatarUri ?? 'app.media.icon_mine_avatar',
+      };
+      this.isLogin = true;
+    } else {
+      this.userInfo = {
+        id: 0,
+        account: '',
+        nickname: '登录/注册',
+        avatarUri: 'app.media.icon_mine_avatar',
+      };
+      this.isLogin = false;
+    }
+  }
+
+
 
   @State updateTip: string = ''  // 使用响应式变量
 
@@ -19,18 +59,19 @@ export struct SetUp {
       this.updateTip = '当前已是最新版本。';
     }
   }
-
-
-  private onBack = () => {
-  AppRouter.back();
-}
-
-
   private onEditProfile = () => {
-    AppRouter.pushUrl({ url: RouterConstant.VIEWS_MINE_INFO });
+    //个人信息
+    if (!this.isLogin) {
+      //未登录----跳转到登录页面
+      AppRouter.pushUrl({ url: RouterConstant.PAGE_LOGIN });
+    }else {
+      //已登录----跳转到个人信息页面
+      AppRouter.pushUrl({ url: RouterConstant.VIEWS_MINE_INFO });
+    }
   }
 
   private onPrivacyPolicy = () => {
+    //隐私政策
     AppRouter.pushUrl({ url: RouterConstant.PAGE_PRIVACY_POLICY });
   }
 
@@ -41,13 +82,8 @@ export struct SetUp {
 
   private onCheckUpdate = () => {
 
-      this.checkAppUpdate(); // 触发更新事件
+    this.checkAppUpdate(); // 触发更新事件
 
-    // promptAction.showToast({
-    //   message: this.updateTip,
-    //   duration: 2000,
-    //
-    // })
     setTimeout(() => {
       promptAction.showToast({
         message: this.updateTip,
@@ -56,11 +92,8 @@ export struct SetUp {
     }, 1000); // 延迟1000毫秒（即1秒）
     console.log('检查更新逻辑');
   }
-
   build() {
-
     Column()
-
     {
       Navigation() {
         // 放 UI 内容，比如 Text、Web、Column 等
@@ -84,27 +117,17 @@ export struct SetUp {
           clickHandler: this.onCheckUpdate,
         })
 
-
-        // // 响应式文本展示
-        // Text(this.updateTip)
-        //   .fontSize(14)
-        //   .fontColor('#999')
-        //   .margin({ top: 10 })
-
       }
-      .title('设置') // ✅ 正确设置标题
-      .titleMode(NavigationTitleMode.Mini) // ✅ 设置标题模式
-      .mode(NavigationMode.Stack) // ✅ 设置导航模式
+      .title('设置') //  正确设置标题
+      .titleMode(NavigationTitleMode.Mini) //  设置标题模式
+      .mode(NavigationMode.Stack) //  设置导航模式
       .hideBackButton(false)
 
 
-
-
-
-
     }  .backgroundColor('#f8f8f8')
-    .width('100%')
-    .height('100%')
+    .width(CommonConstant.WIDTH_FULL)
+    .height(CommonConstant.HEIGHT_FULL)
+    .padding(10)
   }
 }
 

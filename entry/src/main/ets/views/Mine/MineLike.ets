@@ -14,7 +14,7 @@ export struct AboutUs {
   @State collectList: ArticleContentData[] = []
   @State isLoading: boolean = true
 
-  async aboutToAppear() {
+  async onPageShow() {
     await this.loadCollectLike()
   }
 

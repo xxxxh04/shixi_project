@@ -9,7 +9,7 @@ export struct ChatPage {
   @State isLoading: boolean = false
   @State error: string = ''
 
-  // ✅ 替换为你的实际 API Key（可以改成常量或配置项）
+  //  API Key
   private readonly apiKey: string = ''
 
   async send() {
@@ -44,18 +44,47 @@ export struct ChatPage {
       Scroll() {
         Column() {
           ForEach(this.messages, (msg: ChatMessage, index: number) => {
-            Text(`${msg.role === 'user' ? '你' : '助手'}：${msg.content}`)
-              .fontSize(15)
-              .backgroundColor(msg.role === 'user' ? '#D6EAF8' : '#F2F2F2')
-              .textAlign(msg.role === 'user' ? TextAlign.End : TextAlign.Start)
-              .padding(10)
+            // 每条消息一行
+            Row()            {
+              // 条件渲染：助手消息头像在左
+              if (msg.role !== 'user') {
+                Image($r('app.media.learn_img'))
+                  .width(40)
+                  .height(40)
+                  .borderRadius(20)
+                  .margin({ right: 5 }) // 留出气泡间距
+
+              }
+
+              // 消息气泡
+              Text(`${msg.content}`)
+                .fontSize(18)
+                .backgroundColor(msg.role === 'user' ? '#D6EAF8' : '#F2F2F2')
+                .padding(10)
+                .borderRadius(6)
+                .constraintSize({ maxWidth: '72%' })
+
+              // 条件渲染：用户消息头像在右
+              if (msg.role === 'user') {
+                Image($r('app.media.learn_img'))
+                  .width(40)
+                  .height(40)
+                  .borderRadius(20)
+                  .margin({ left: 5 })
+              }
+            }
+              .width('100%')
+              .justifyContent(
+                msg.role === 'user' ? FlexAlign.End : FlexAlign.Start
+              )
               .margin({ top: 5, bottom: 5 })
-              .borderRadius(6)
+            .alignItems(VerticalAlign.Top) // 👈 关键代码，让头像和消息框顶部对齐
           })
         }
+
         .padding(10)
       }
-      .height(450)
+      .height('80%')
 
       if (this.error) {
         Text(this.error)
@@ -66,19 +95,16 @@ export struct ChatPage {
       Row({ space: 6 }) {
         // 自定义 placeholder 效果
         Stack() {
-          TextInput({ text: this.userInput })
+          TextInput({
+            text: this.userInput,
+            placeholder: '请输入内容'
+          })
             .width('100%')
             .height(40)
             .padding({ left: 10 })
             .border({ width: 1, color: '#BBB', radius: 8 })
             .onChange((value: string) => this.userInput = value)
 
-          if (!this.userInput) {
-            Text('请输入内容...')
-              .position({ left: 14, top: 10 })
-              .fontColor('#888')
-              .fontSize(14)
-          }
         }
         .width('75%')
 

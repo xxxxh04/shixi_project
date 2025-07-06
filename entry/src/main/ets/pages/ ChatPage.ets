@@ -1,5 +1,7 @@
 // pages/ChatPage.ets
 import { sendMessageToDeepSeek, ChatMessage } from '../utils/RequestUtil'
+import { router } from '@kit.ArkUI'
+import { UserInfo } from '../api/UserApi.type'
 
 @Entry
 @Component
@@ -8,6 +10,29 @@ export struct ChatPage {
   @State userInput: string = ''
   @State isLoading: boolean = false
   @State error: string = ''
+  @State userInfo: UserInfo = {
+    id: 0,
+    account: '',
+    nickname: '',
+    avatarUri: 'app.media.icon_mine_avatar'
+  }
+
+  aboutToAppear() {
+    const params = AppStorage.get<UserInfo>('userInfo');
+
+    if (params) {
+      this.userInfo = {
+        id: params.id,
+        account: params.account,
+        nickname: params.nickname ,
+        avatarUri: params.avatarUri
+      }
+    } else {
+      // 未登录，设置默认头像资源
+      this.userInfo.avatarUri = 'app.media.icon_mine_avatar'
+    }
+  }
+
 
   //  API Key
   private readonly apiKey: string = ''
@@ -39,21 +64,53 @@ export struct ChatPage {
     this.isLoading = false
   }
 
+  // 顶部导航栏构建函数
+  @Builder
+  TopBar() {
+    Row() {
+      Column() {
+        Image($r('app.media.icpn_back_black')) // 返回图标
+          .width(25)
+          .height(25)
+      }
+      .width(50)
+      .height(50)
+      .justifyContent(FlexAlign.Center)
+      .onClick(() => {
+        router.back(); // 返回上一页
+      })
+
+      Text("AI助手") // 显示标题
+        .fontSize(18)
+        .fontWeight(FontWeight.Medium)
+        .maxLines(1)
+        .textOverflow({ overflow: TextOverflow.Ellipsis }) // 标题超出省略
+        .layoutWeight(1)
+        .textAlign(TextAlign.Center)
+
+      Column().width(50) // 占位列（右侧空位）
+    }
+    .width('100%')
+    .height(50)
+    .padding({ left: 5, right: 5 })
+    .backgroundColor('#f8f9fa')
+  }
+
+
   build() {
     Column() {
+      this.TopBar()
       Scroll() {
         Column() {
           ForEach(this.messages, (msg: ChatMessage, index: number) => {
-            // 每条消息一行
-            Row()            {
-              // 条件渲染：助手消息头像在左
+            Row() {
+              // 助手头像（左侧）
               if (msg.role !== 'user') {
-                Image($r('app.media.learn_img'))
+                Image($r('app.media.app_icon'))  // 固定助手头像资源
                   .width(40)
                   .height(40)
                   .borderRadius(20)
-                  .margin({ right: 5 }) // 留出气泡间距
-
+                  .margin({ right: 5 })
               }
 
               // 消息气泡
@@ -64,26 +121,26 @@ export struct ChatPage {
                 .borderRadius(6)
                 .constraintSize({ maxWidth: '72%' })
 
-              // 条件渲染：用户消息头像在右
+              // 用户头像（右侧）
               if (msg.role === 'user') {
-                Image($r('app.media.learn_img'))
+                Image($r(this.userInfo.avatarUri))  // 动态用户头像，确保是资源或网络链接
                   .width(40)
                   .height(40)
                   .borderRadius(20)
                   .margin({ left: 5 })
               }
             }
-              .width('100%')
-              .justifyContent(
-                msg.role === 'user' ? FlexAlign.End : FlexAlign.Start
-              )
-              .margin({ top: 5, bottom: 5 })
-            .alignItems(VerticalAlign.Top) // 👈 关键代码，让头像和消息框顶部对齐
+            .width('100%')
+            .justifyContent(
+              msg.role === 'user' ? FlexAlign.End : FlexAlign.Start
+            )
+            .margin({ top: 5, bottom: 5 })
+            .alignItems(VerticalAlign.Top)
           })
         }
-
         .padding(10)
       }
+
       .height('80%')
 
       if (this.error) {

@@ -19,6 +19,7 @@
     "views/Learn/Clock",
     "views/Learn/LearnTool",
     "views/Learn/ClockRecord",
-    "views/Learn/LearnContent"
+    "views/Learn/LearnContent",
+    "views/Learn/LearnList"
   ]
 }

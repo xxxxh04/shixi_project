@@ -98,3 +98,22 @@ export interface ArticleContentData extends BaseTime {
   /** 发布时间字符串（格式化后的时间，比如“2小时前”） */
   time: string;
 }
+
+// 新增枚举定义
+export enum PlatformCategory {
+  LEARNING = '1', // 学习平台
+  INTERVIEW = '2'  // 面试平台
+}
+
+export enum ContentCategory {
+  HARMONY_OS = '1',
+  JAVA = '2',
+  WEB = '3',
+  OPERATIONS = '4'
+}
+
+export enum DifficultyCategory {
+  BEGINNER = '1',
+  INTERMEDIATE = '2',
+  ADVANCED = '3'
+}

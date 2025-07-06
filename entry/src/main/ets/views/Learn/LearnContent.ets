@@ -1,184 +1,72 @@
 import router from '@ohos.router';
 import articleContentApi from '../../api/ArticleContentApi';
-import { ArticleContentData, ArticleContentPageParam } from '../../api/ArticleContentApi.type';
+import { ArticleContentData } from '../../api/ArticleContentApi.type';
 import { LoadingComponent } from '../../components/LoadingComponent';
 import { ErrorComponent } from '../../components/ErrorComponent';
 import { RouterConstant } from '../../contants/RouterConstant';
 
-// 定义路由参数类型
-type RouterParamValue = string | number | boolean | undefined;
-type RouterParams = Record<string, RouterParamValue>;
+// 定义路由参数接口
+interface RouteParams {
+  articleId: number; // 明确定义为数字类型
+  pageTitle?: string;
+  platformCategory?: string;
+}
 
 @Entry
 @Component
 struct LearnContent {
-  private readonly DEFAULT_PAGE_SIZE: number = 10;
-
-  @State contentType: 'category' | 'detail' = 'category';
-  @State contentCategory: number = 0;
-  @State pageTitle: string = '学习内容';
-  @State articleList: ArticleContentData[] = [];
+  @State pageTitle: string = '文章详情';
   @State articleData: ArticleContentData | null = null;
   @State isLoading: boolean = true;
   @State loadError: boolean = false;
   @State errorMessage: string = '';
-  @State currentPage: number = 1;
-  @State hasMore: boolean = true;
   @State platformCategory: string = '1';
 
   aboutToAppear(): void {
-    const params = router.getParams() as RouterParams;
-    console.log('[DEBUG] LearnContent页面加载 - 路由参数:', JSON.stringify(params, null, 2));
-
-    // 处理内容类型
-    this.contentType = params['contentType'] === 'detail' ? 'detail' : 'category';
-    console.log(`[DEBUG] 内容类型: ${this.contentType}`);
+    const params: RouteParams = router.getParams() as RouteParams;
 
     // 处理平台分类
-    this.platformCategory = this.validatePlatformCategory(params['platformCategory']?.toString());
-    console.log(`[DEBUG] 平台分类: ${this.platformCategory}`);
-
-    // 处理分类ID
-    const categoryParam = params['contentCategory'];
-    if (typeof categoryParam === 'string') {
-      this.contentCategory = parseInt(categoryParam, 10) || 0;
-    } else if (typeof categoryParam === 'number') {
-      this.contentCategory = categoryParam;
+    if (params.platformCategory) {
+      this.platformCategory = params.platformCategory;
     }
-    console.log(`[DEBUG] 内容分类ID: ${this.contentCategory}`);
 
     // 处理页面标题
-    const titleParam = params['pageTitle'];
-    this.pageTitle = typeof titleParam === 'string' ? titleParam : '学习内容';
-    console.log(`[DEBUG] 页面标题: ${this.pageTitle}`);
-
-    // 根据参数类型加载内容
-    if (this.contentType === 'category') {
-      console.log('[DEBUG] 加载文章列表...');
-      this.loadArticleList(1);
-    } else {
-      console.log('[DEBUG] 加载文章详情...');
-      this.loadArticleDetail(params);
-    }
-  }
-
-  // 验证平台分类参数
-  private validatePlatformCategory(value?: string): string {
-    if (value === '1' || value === '2') {
-      return value;
-    }
-    console.warn(`[WARN] 无效的平台分类参数: ${value}, 使用默认值'1'`);
-    return '1';
-  }
-
-  // 验证文章ID参数
-  private validateArticleId(input: RouterParamValue): number | null {
-    if (typeof input === 'number' && input > 0) {
-      return input;
+    if (params.pageTitle) {
+      this.pageTitle = params.pageTitle;
     }
 
-    if (typeof input === 'string') {
-      const id = parseInt(input.trim(), 10);
-      if (!isNaN(id) && id > 0) {
-        return id;
-      }
-    }
-
-    console.error(`[ERROR] 无效的文章ID格式: ${input} (类型: ${typeof input})`);
-    return null;
-  }
-
-  // 加载文章列表
-  private loadArticleList(page: number = 1): void {
-    if (!this.contentCategory) {
-      this.handleLoadError('缺少内容分类参数');
-      return;
-    }
-
-    this.isLoading = true;
-    this.loadError = false;
-    this.errorMessage = '';
-
-    const params: ArticleContentPageParam = {
-      page: page,
-      pageSize: this.DEFAULT_PAGE_SIZE,
-      contentCategory: this.contentCategory.toString(),
-      platformCategory: this.platformCategory
-    };
-
-    console.log('[DEBUG] 请求文章列表参数:', JSON.stringify(params, null, 2));
-
-    articleContentApi.pageListArticleContent(params)
-      .then((pageData) => {
-        console.log(`[DEBUG] 文章列表加载成功, 总数: ${pageData.total}, 当前页: ${pageData.records.length}`);
-
-        // 检查文章ID有效性
-        const invalidArticles = pageData.records.filter(article => !article.id || article.id <= 0);
-        if (invalidArticles.length > 0) {
-          console.warn(`[WARN] 发现${invalidArticles.length}篇文章ID无效`);
-        }
-
-        if (page === 1) {
-          this.articleList = pageData.records;
-        } else {
-          this.articleList = [...this.articleList, ...pageData.records];
-        }
-
-        this.hasMore = pageData.total > this.articleList.length;
-        this.currentPage = page;
-        this.isLoading = false;
-      })
-      .catch((error: Error) => {
-        console.error(`[ERROR] 文章列表加载失败: ${error.message}`);
-        this.handleLoadError(`加载失败: ${error.message || '未知错误'}`);
-      });
+    // 加载文章详情
+    this.loadArticleDetail(params.articleId);
   }
 
   // 加载单篇文章详情
-  private loadArticleDetail(params: RouterParams): void {
-    this.isLoading = true;
-    this.loadError = false;
-    this.errorMessage = '';
-
-    console.log('[DEBUG] 详情页参数:', JSON.stringify(params, null, 2));
-
-    // 尝试从不同参数名获取文章ID
-    const idSources = ['articleId', 'id', 'contentId', 'articleID'];
-    let articleId: number | null = null;
-
-    for (const key of idSources) {
-      if (params[key] !== undefined) {
-        console.log(`[DEBUG] 尝试从参数 ${key} 获取ID: ${params[key]}`);
-        articleId = this.validateArticleId(params[key]);
-        if (articleId) {
-          console.log(`[DEBUG] 成功获取有效文章ID: ${articleId}`);
-          break;
-        }
-      }
-    }
-
-    if (!articleId) {
-      const errorMsg = `未获取到有效文章ID，参数: ${JSON.stringify(params)}`;
-      console.error(`[ERROR] ${errorMsg}`);
-      this.handleLoadError('文章ID参数错误或缺失');
+  private loadArticleDetail(articleId: number): void {
+    // 验证ID有效性
+    if (!articleId || articleId <= 0) {
+      this.handleLoadError('无效的文章ID');
       return;
     }
 
-    console.log(`[DEBUG] 请求文章详情 ID: ${articleId}`);
+    this.isLoading = true;
+    this.loadError = false;
+    this.errorMessage = '';
 
     articleContentApi.getArticleContentInfo(articleId)
       .then((data: ArticleContentData) => {
         if (!data || !data.id) {
-          throw new Error('API返回空数据或无效ID');
+          throw new Error('API返回空数据');
         }
 
-        console.log(`[DEBUG] 文章详情加载成功 ID: ${data.id}, 标题: ${data.title}`);
         this.articleData = data;
-        this.pageTitle = data.title;
+
+        // 更新页面标题
+        if (this.pageTitle === '文章详情') {
+          this.pageTitle = data.title;
+        }
+
         this.isLoading = false;
       })
       .catch((error: Error) => {
-        console.error(`[ERROR] 文章详情加载失败 ID: ${articleId}: ${error.message}`);
         this.handleLoadError(`加载失败: ${error.message || '未知错误'}`);
       });
   }
@@ -188,59 +76,14 @@ struct LearnContent {
     this.isLoading = false;
     this.loadError = true;
     this.errorMessage = message;
-    console.error(`[ERROR] ${message}`);
-  }
-
-  // 点赞文章
-  private likeArticle(): void {
-    if (!this.articleData) {
-      console.warn('[WARN] 点赞失败: 文章数据为空');
-      return;
-    }
-
-    console.log(`[DEBUG] 点赞文章 ID: ${this.articleData.id}`);
-
-    articleContentApi.likeArticleContent(this.articleData.id)
-      .then(() => {
-        console.log(`[DEBUG] 点赞成功 ID: ${this.articleData?.id}`);
-        if (this.articleData) {
-          this.articleData.isLike = !this.articleData.isLike;
-          this.articleData.likeCount += this.articleData.isLike ? 1 : -1;
-        }
-      })
-      .catch((error: Error) => {
-        console.error(`[ERROR] 点赞失败 ID: ${this.articleData?.id}: ${error.message}`);
-      });
-  }
-
-  // 收藏文章
-  private collectArticle(): void {
-    if (!this.articleData) {
-      console.warn('[WARN] 收藏失败: 文章数据为空');
-      return;
-    }
-
-    console.log(`[DEBUG] 收藏文章 ID: ${this.articleData.id}`);
-
-    articleContentApi.collectArticleContent(this.articleData.id)
-      .then(() => {
-        console.log(`[DEBUG] 收藏成功 ID: ${this.articleData?.id}`);
-        if (this.articleData) {
-          this.articleData.isCollect = !this.articleData.isCollect;
-          this.articleData.collectCount += this.articleData.isCollect ? 1 : -1;
-        }
-      })
-      .catch((error: Error) => {
-        console.error(`[ERROR] 收藏失败 ID: ${this.articleData?.id}: ${error.message}`);
-      });
   }
 
   // 构建顶部导航栏
   @Builder
-  TopBar(): void {
+  TopBar() {
     Row() {
       Column() {
-        Image($r('app.media.icon_back'))
+        Image($r('app.media.icpn_back_black'))
           .width(25)
           .height(25)
       }
@@ -248,7 +91,6 @@ struct LearnContent {
       .height(50)
       .justifyContent(FlexAlign.Center)
       .onClick(() => {
-        console.log('[DEBUG] 返回上一页');
         router.back();
       })
 
@@ -268,145 +110,9 @@ struct LearnContent {
     .backgroundColor('#f8f9fa')
   }
 
-  // 构建文章列表项
-  @Builder
-  ArticleListItem(article: ArticleContentData): void {
-    Column({ space: 12 }) {
-      Text(article.title)
-        .fontSize(18)
-        .fontWeight(FontWeight.Bold)
-        .textAlign(TextAlign.Start)
-        .width('100%')
-        .maxLines(2)
-        .textOverflow({ overflow: TextOverflow.Ellipsis })
-
-      Row() {
-        Image(article.avatarUri)
-          .width(30)
-          .height(30)
-          .borderRadius(15)
-          .objectFit(ImageFit.Cover)
-
-        Column({ space: 4 }) {
-          Text(article.nickname)
-            .fontSize(14)
-            .fontWeight(FontWeight.Medium)
-
-          Text(article.time)
-            .fontSize(12)
-            .fontColor('#666')
-        }
-        .margin({ left: 10 })
-        .layoutWeight(1)
-
-        Text(`${article.readCount}阅读`)
-          .fontSize(12)
-          .fontColor('#666')
-      }
-      .width('100%')
-      .alignItems(VerticalAlign.Center)
-
-      Row({ space: 8 }) {
-        Text(this.getCategoryLabel(article.contentCategory))
-          .fontSize(10)
-          .padding({ top: 3, bottom: 3, left: 6, right: 6 })
-          .backgroundColor('#e6f7ff')
-          .borderRadius(6)
-
-        Text(this.getDifficultyLabel(article.difficultyCategory))
-          .fontSize(10)
-          .padding({ top: 3, bottom: 3, left: 6, right: 6 })
-          .backgroundColor('#f6ffed')
-          .borderRadius(6)
-      }
-      .width('100%')
-      .margin({ top: 8 })
-
-      if (article.coverUrl) {
-        Image(article.coverUrl)
-          .width('100%')
-          .aspectRatio(2)
-          .objectFit(ImageFit.Cover)
-          .borderRadius(8)
-          .margin({ top: 10 })
-      }
-
-      Divider()
-        .margin({ top: 10, bottom: 5 })
-
-      Row({ space: 20 }) {
-        Column() {
-          Image(article.isLike ? $r('app.media.icon_like_selected') : $r('app.media.icon_like_default'))
-            .width(20)
-            .height(20)
-
-          Text(`${article.likeCount}`)
-            .fontSize(12)
-            .fontColor(article.isLike ? '#ff4500' : '#666')
-            .margin({ top: 2 })
-        }
-        .onClick(() => this.likeArticleItem(article))
-
-        Column() {
-          Image(article.isCollect ? $r('app.media.icon_collect_selected') : $r('app.media.icon_collect_default'))
-            .width(20)
-            .height(20)
-
-          Text(`${article.collectCount}`)
-            .fontSize(12)
-            .fontColor(article.isCollect ? '#ffc000' : '#666')
-            .margin({ top: 2 })
-        }
-        .onClick(() => this.collectArticleItem(article))
-
-        Column() {
-          Image($r('app.media.Icon_app'))
-            .width(20)
-            .height(20)
-          Text('评论')
-            .fontSize(12)
-            .fontColor('#666')
-            .margin({ top: 2 })
-        }
-      }
-      .width('100%')
-      .justifyContent(FlexAlign.SpaceAround)
-      .padding({ bottom: 5 })
-    }
-    .width('100%')
-    .padding(12)
-    .backgroundColor(Color.White)
-    .borderRadius(8)
-    .margin({ bottom: 10 })
-    .onClick(() => {
-      console.log(`[DEBUG] 跳转到文章详情 ID: ${article.id}, 标题: ${article.title}`);
-
-      if (!article.id || article.id <= 0) {
-        console.error(`[ERROR] 无效的文章ID: ${article.id}, 无法跳转详情`);
-        return;
-      }
-
-      router.pushUrl({
-        url: RouterConstant.VIEWS_LEARN_CONTENT,
-        params: {
-          contentType: 'detail',
-          articleId: article.id,
-          pageTitle: article.title,
-          platformCategory: this.platformCategory
-        }
-      }, (err) => {
-        if (err) {
-          console.error(`[ERROR] 路由跳转失败: ${err.code} - ${err.message}`);
-        } else {
-          console.log('[DEBUG] 路由跳转成功');
-        }
-      })
-    })
-  }
-
   // 文章详情头部
   @Builder
-  ArticleHeader(): void {
+  ArticleHeader() {
     if (this.articleData) {
       Column({ space: 12 }) {
         Text(this.articleData.title)
@@ -504,7 +210,7 @@ struct LearnContent {
           }
 
           Column() {
-            Image($r('app.media.Icon_app'))
+            Image($r('app.media.icon_mine_logout'))
               .width(24)
               .height(24)
             Text('分享')
@@ -524,7 +230,7 @@ struct LearnContent {
 
   // 文章详情内容
   @Builder
-  ArticleContent(): void {
+  ArticleContent() {
     if (this.articleData) {
       Column() {
         Text(this.articleData.content)
@@ -538,76 +244,30 @@ struct LearnContent {
     }
   }
 
-  // 构建加载更多按钮
-  @Builder
-  LoadMoreButton(): void {
-    if (this.hasMore && !this.isLoading) {
-      Button('加载更多', { type: ButtonType.Normal })
-        .width(120)
-        .height(40)
-        .margin(10)
-        .onClick(() => {
-          console.log(`[DEBUG] 加载更多, 当前页: ${this.currentPage}`);
-          this.loadArticleList(this.currentPage + 1);
-        })
-    } else if (this.isLoading) {
-      LoadingComponent()
-    } else if (!this.hasMore) {
-      Text('没有更多内容了')
-        .fontSize(14)
-        .fontColor('#999')
-        .margin(10)
-    }
-  }
+  // 点赞文章
+  private likeArticle(): void {
+    if (!this.articleData) return;
 
-  // 列表点赞处理
-  private likeArticleItem(article: ArticleContentData): void {
-    if (!article.id || article.id <= 0) {
-      console.error(`[ERROR] 点赞失败: 无效文章ID ${article.id}`);
-      return;
-    }
-
-    console.log(`[DEBUG] 点赞文章 ID: ${article.id}`);
-
-    articleContentApi.likeArticleContent(article.id)
+    articleContentApi.likeArticleContent(this.articleData.id)
       .then(() => {
-        console.log(`[DEBUG] 点赞成功 ID: ${article.id}`);
-        const index = this.articleList.findIndex(item => item.id === article.id);
-        if (index !== -1) {
-          const updatedList = [...this.articleList];
-          updatedList[index].isLike = !updatedList[index].isLike;
-          updatedList[index].likeCount += updatedList[index].isLike ? 1 : -1;
-          this.articleList = updatedList;
+        if (this.articleData) {
+          this.articleData.isLike = !this.articleData.isLike;
+          this.articleData.likeCount += this.articleData.isLike ? 1 : -1;
         }
       })
-      .catch((error: Error) => {
-        console.error(`[ERROR] 点赞失败 ID: ${article.id}: ${error.message}`);
-      });
   }
 
-  // 列表收藏处理
-  private collectArticleItem(article: ArticleContentData): void {
-    if (!article.id || article.id <= 0) {
-      console.error(`[ERROR] 收藏失败: 无效文章ID ${article.id}`);
-      return;
-    }
+  // 收藏文章
+  private collectArticle(): void {
+    if (!this.articleData) return;
 
-    console.log(`[DEBUG] 收藏文章 ID: ${article.id}`);
-
-    articleContentApi.collectArticleContent(article.id)
+    articleContentApi.collectArticleContent(this.articleData.id)
       .then(() => {
-        console.log(`[DEBUG] 收藏成功 ID: ${article.id}`);
-        const index = this.articleList.findIndex(item => item.id === article.id);
-        if (index !== -1) {
-          const updatedList = [...this.articleList];
-          updatedList[index].isCollect = !updatedList[index].isCollect;
-          updatedList[index].collectCount += updatedList[index].isCollect ? 1 : -1;
-          this.articleList = updatedList;
+        if (this.articleData) {
+          this.articleData.isCollect = !this.articleData.isCollect;
+          this.articleData.collectCount += this.articleData.isCollect ? 1 : -1;
         }
       })
-      .catch((error: Error) => {
-        console.error(`[ERROR] 收藏失败 ID: ${article.id}: ${error.message}`);
-      });
   }
 
   // 分类标签转换
@@ -646,93 +306,34 @@ struct LearnContent {
       this.TopBar()
 
       // 内容区域
-      if (this.contentType === 'category') {
-        this.BuildListContent()
-      } else {
-        this.BuildDetailContent()
+      Scroll() {
+        Column() {
+          if (this.isLoading) {
+            LoadingComponent()
+              .height(300)
+          } else if (this.loadError) {
+            ErrorComponent({
+              message: this.errorMessage,
+              onRetry: () => {
+                const params: RouteParams = router.getParams() as RouteParams;
+                this.loadArticleDetail(params.articleId);
+              }
+            })
+          } else if (this.articleData) {
+            this.ArticleHeader()
+            this.ArticleContent()
+          }
+        }
       }
+      .scrollable(ScrollDirection.Vertical)
+      .scrollBar(BarState.On)
+      .scrollBarColor(Color.Gray)
+      .scrollBarWidth(6)
+      .edgeEffect(EdgeEffect.Spring)
+      .layoutWeight(1)
     }
     .width('100%')
     .height('100%')
     .backgroundColor('#F5F5F5')
-  }
-
-  @Builder
-  BuildListContent(): void {
-    Column() {
-      if (this.isLoading && this.articleList.length === 0) {
-        LoadingComponent()
-          .height('80%')
-      } else if (this.loadError) {
-        ErrorComponent({
-          message: this.errorMessage,
-          onRetry: () => {
-            console.log('[DEBUG] 重试加载文章列表');
-            this.loadArticleList(1);
-          }
-        })
-      } else if (this.articleList.length > 0) {
-        List({ space: 10 }) {
-          ForEach(this.articleList, (item: ArticleContentData) => {
-            ListItem() {
-              this.ArticleListItem(item)
-            }
-          })
-        }
-        .width('100%')
-        .layoutWeight(1)
-        .divider({ strokeWidth: 1, color: '#f0f0f0' })
-
-        this.LoadMoreButton()
-      } else {
-        Column() {
-          Image($r('app.media.error'))
-            .width(100)
-            .height(100)
-          Text('暂无内容')
-            .fontSize(16)
-            .margin({ top: 15 })
-            .onClick(() => {
-              console.log('[DEBUG] 重试加载文章列表');
-              this.loadArticleList(1);
-            })
-        }
-        .width('100%')
-        .height('80%')
-        .justifyContent(FlexAlign.Center)
-        .alignItems(HorizontalAlign.Center)
-      }
-    }
-    .padding(10)
-    .layoutWeight(1)
-  }
-
-  @Builder
-  BuildDetailContent(): void {
-    Scroll() {
-      Column() {
-        if (this.isLoading) {
-          LoadingComponent()
-            .height(300)
-        } else if (this.loadError) {
-          ErrorComponent({
-            message: this.errorMessage,
-            onRetry: () => {
-              console.log('[DEBUG] 重试加载文章详情');
-              this.loadArticleDetail(router.getParams() as RouterParams);
-            }
-          })
-        } else if (this.articleData) {
-          this.ArticleHeader()
-          this.ArticleContent()
-        }
-      }
-    }
-    .scrollable(ScrollDirection.Vertical)
-    .scrollBar(BarState.On)
-    .scrollBarColor(Color.Gray)
-    .scrollBarWidth(6)
-    .edgeEffect(EdgeEffect.Spring)
-    .layoutWeight(1)
   }
 }

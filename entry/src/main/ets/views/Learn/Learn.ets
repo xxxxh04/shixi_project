@@ -4,10 +4,11 @@ import { LearnApplicationData } from '../../models/LearnApplicationData'
 import { router } from '@kit.ArkUI'
 import { RouterConstant } from '../../contants/RouterConstant'
 import { TitleComponent } from '../../components/TitleComponent'
+import { PlatformCategory } from '../../api/ArticleContentApi.type'
 
 @Entry
 @Component
-export struct Learn {
+struct Learn {
   @State learnApplicationList: LearnApplicationData[] = [
     { id: 1, name: '鸿蒙', icon: $r("app.media.icon_learn_hm") },
     { id: 2, name: 'Java', icon: $r("app.media.icon_learn_java") },
@@ -27,6 +28,82 @@ export struct Learn {
 
   @State pageTitle: string = '学习'
 
+  // 修复点 1: 使用明确的 Resource 类型
+  @Builder
+  fontTitleBuilder(title: string) {
+    Row() {
+      Text(title)
+        .fontSize($r('app.float.common_font_size_big'))
+        .fontWeight(FontWeight.Medium)
+        .fontColor('#191919')
+    }.width(CommonConstant.WIDTH_FULL).margin({ top: 25, bottom: 15 })
+  }
+
+  // 修复点 2-3: 重构样式扩展方法
+  @Builder
+  learnApplicationBuilder(id: number, icon: Resource, text: string) {
+    Column({ space: 10 }) {
+      Image(icon)
+        .width(40).aspectRatio(1)
+
+      // 修复点 2: 内联文本样式
+      Text(text)
+        .fontSize($r('app.float.common_font_size_small'))
+        .fontColor('#191919')
+        .fontWeight(FontWeight.Normal)
+    }
+    // 修复点 3: 内联列样式
+    .width(75)
+    .height($r('app.float.common_height_big'))
+    .backgroundColor($r('app.color.common_white'))
+    .justifyContent(FlexAlign.Center)
+    .borderRadius(8)
+    .onClick(() => {
+      router.pushUrl({
+        url: RouterConstant.VIEWS_LEARN_LIST,
+        params: {
+          contentType: 'category',
+          contentCategory: String(id),
+          pageTitle: text,
+          platformCategory: PlatformCategory.LEARNING,
+          currentTabIndex: 1
+        }
+      })
+    })
+  }
+
+  @Builder
+  interviewApplicationBuilder(id: number, icon: Resource, text: string) {
+    Column({ space: 10 }) {
+      Image(icon)
+        .width(40).aspectRatio(1)
+
+      // 修复点 2: 内联文本样式
+      Text(text)
+        .fontSize($r('app.float.common_font_size_small'))
+        .fontColor('#191919')
+        .fontWeight(FontWeight.Normal)
+    }
+    // 修复点 3: 内联列样式
+    .width(75)
+    .height($r('app.float.common_height_big'))
+    .backgroundColor($r('app.color.common_white'))
+    .justifyContent(FlexAlign.Center)
+    .borderRadius(8)
+    .onClick(() => {
+      router.pushUrl({
+        url: RouterConstant.VIEWS_LEARN_LIST,
+        params: {
+          contentType: 'category',
+          contentCategory: String(id),
+          pageTitle: text,
+          platformCategory: PlatformCategory.INTERVIEW,
+          currentTabIndex: 1
+        }
+      })
+    })
+  }
+
   build() {
     Column() {
       TitleComponent({ title: this.pageTitle })
@@ -39,9 +116,10 @@ export struct Learn {
           .fontColor('#191919')
       }
 
-      fontTitleBuilder('学习工具')
+      this.fontTitleBuilder('学习工具')
       Row({ space: 15 }) {
         ForEach(this.clockData, (item: LearnApplicationData) => {
+          // 修复点 1: 确保传递 Resource 类型
           ClockComponent({ icon: item.icon, text: item.name })
             .onClick(() => {
               if (item.id === 1) {
@@ -53,17 +131,19 @@ export struct Learn {
         })
       }
 
-      fontTitleBuilder('学习平台')
+      this.fontTitleBuilder('学习平台')
       Row({ space: 15 }) {
         ForEach(this.learnApplicationList, (item: LearnApplicationData) => {
-          learnApplicationBuilder(item.id, item.icon, item.name)
+          // 修复点 1: 确保传递 Resource 类型
+          this.learnApplicationBuilder(item.id, item.icon, item.name)
         })
       }
 
-      fontTitleBuilder('面试大全')
+      this.fontTitleBuilder('面试大全')
       Row({ space: 15 }) {
         ForEach(this.interviewApplicationList, (item: LearnApplicationData) => {
-          interviewApplicationBuilder(item.id, item.icon, item.name)
+          // 修复点 1: 确保传递 Resource 类型
+          this.interviewApplicationBuilder(item.id, item.icon, item.name)
         })
       }.width(CommonConstant.WIDTH_FULL)
 
@@ -74,71 +154,4 @@ export struct Learn {
   }
 }
 
-@Builder
-function fontTitleBuilder(title: string) {
-  Row() {
-    Text(title)
-      .fontSize($r('app.float.common_font_size_big'))
-      .fontWeight(FontWeight.Medium)
-      .fontColor('#191919')
-  }.width(CommonConstant.WIDTH_FULL).margin({ top: 25, bottom: 15 })
-}
-
-@Builder
-function learnApplicationBuilder(id: number, icon: ResourceStr, text: string) {
-  Column({ space: 10 }) {
-    Image(icon)
-      .width(40).aspectRatio(1)
-    Text(text).textStyles()
-  }
-  .columStyles(id, text)
-  .onClick(() => {
-    router.pushUrl({
-      url: RouterConstant.VIEWS_LEARN_CONTENT,
-      params: {
-        contentType: 'category',
-        contentCategory: id,
-        pageTitle: text,
-        platformCategory: '1', // 学习平台
-        categoryType: 'content' // 分类类型
-      }
-    })
-  })
-}
-
-@Builder
-function interviewApplicationBuilder(id: number, icon: ResourceStr, text: string) {
-  Column({ space: 10 }) {
-    Image(icon)
-      .width(40).aspectRatio(1)
-    Text(text).textStyles()
-  }.columStyles(id, text)
-  .onClick(() => {
-    router.pushUrl({
-      url: RouterConstant.VIEWS_LEARN_CONTENT,
-      params: {
-        contentType: 'category',
-        contentCategory: id,
-        pageTitle: text,
-        platformCategory: '2', // 面试平台
-        categoryType: 'interview' // 分类类型
-      }
-    })
-  })
-}
-
-@Extend(Text)
-function textStyles() {
-  .fontSize($r('app.float.common_font_size_small'))
-  .fontColor('#191919')
-  .fontWeight(FontWeight.Normal)
-}
-
-@Extend(Column)
-function columStyles(id: number, text: string) {
-  .width(75)
-  .height($r('app.float.common_height_big'))
-  .backgroundColor($r('app.color.common_white'))
-  .justifyContent(FlexAlign.Center)
-  .borderRadius(8)
-}
+export { Learn }

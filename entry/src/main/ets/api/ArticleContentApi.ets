@@ -19,25 +19,41 @@ class ArticleContentApi {
     if (data.page !== undefined) queryParams.push(`page=${data.page}`);
     if (data.pageSize !== undefined) queryParams.push(`pageSize=${data.pageSize}`);
     if (data.title) queryParams.push(`title=${encodeURIComponent(data.title)}`);
-    if (data.contentCategory) queryParams.push(`contentCategory=${encodeURIComponent(data.contentCategory)}`);
-    if (data.platformCategory) queryParams.push(`platformCategory=${encodeURIComponent(data.platformCategory)}`);
-    if (data.difficultyCategory) queryParams.push(`difficultyCategory=${encodeURIComponent(data.difficultyCategory)}`);
+
+    // 确保所有分类参数转为字符串
+    if (data.contentCategory !== undefined && data.contentCategory !== null) {
+      queryParams.push(`contentCategory=${String(data.contentCategory)}`);
+    }
+    if (data.platformCategory !== undefined && data.platformCategory !== null) {
+      queryParams.push(`platformCategory=${String(data.platformCategory)}`);
+    }
+    if (data.difficultyCategory !== undefined && data.difficultyCategory !== null) {
+      queryParams.push(`difficultyCategory=${String(data.difficultyCategory)}`);
+    }
 
     const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+
+    // 添加调试日志
+    console.log(`[API] 请求文章列表: /v1/article/page${queryString}`);
 
     return http.get(`/v1/article/page${queryString}`);
   }
 
   /**
    * 获取指定文章的详细信息
-   * @param id - 文章 ID（必须为有效数字）
+   * @param id - 文章 ID（允许0值）
    * @returns 文章详情数据
    */
   getArticleContentInfo(id: number): Promise<ArticleContentData> {
-    if (!id || isNaN(id)) {
-      return Promise.reject(new Error('无效的文章ID'));
+    // 放宽验证 - 只拒绝无效数字
+    if (id === undefined || id === null || isNaN(id)) {
+      const errorMsg = `无效的文章ID: ${id} (类型: ${typeof id})`;
+      console.error(`[API-ERROR] ${errorMsg}`);
+      return Promise.reject(new Error(errorMsg));
     }
-    console.log('请求文章详情 ID:', id);
+
+    // 添加调试日志
+    console.log(`[API] 请求文章详情 ID: ${id}`);
     return http.get(`/v1/article/info?id=${id}`);
   }
 
@@ -47,6 +63,13 @@ class ArticleContentApi {
    * @returns 无返回值（成功/失败）
    */
   likeArticleContent(id: number): Promise<void> {
+    // 添加验证和日志
+    if (id === undefined || id === null || isNaN(id)) {
+      console.error(`[API-ERROR] 点赞失败: 无效文章ID ${id}`);
+      return Promise.reject(new Error('无效的文章ID'));
+    }
+
+    console.log(`[API] 点赞文章 ID: ${id}`);
     return http.put(`/v1/article/like?id=${id}`);
   }
 
@@ -56,6 +79,13 @@ class ArticleContentApi {
    * @returns 无返回值（成功/失败）
    */
   collectArticleContent(id: number): Promise<void> {
+    // 添加验证和日志
+    if (id === undefined || id === null || isNaN(id)) {
+      console.error(`[API-ERROR] 收藏失败: 无效文章ID ${id}`);
+      return Promise.reject(new Error('无效的文章ID'));
+    }
+
+    console.log(`[API] 收藏文章 ID: ${id}`);
     return http.put(`/v1/article/collect?id=${id}`);
   }
 
@@ -64,6 +94,7 @@ class ArticleContentApi {
    * @returns 文章数据数组
    */
   getUserLike(): Promise<ArticleContentData[]> {
+    console.log('[API] 请求用户点赞文章列表');
     return http.get('/v1/article/myLike');
   }
 
@@ -72,6 +103,7 @@ class ArticleContentApi {
    * @returns 文章数据数组
    */
   getUserCollect(): Promise<ArticleContentData[]> {
+    console.log('[API] 请求用户收藏文章列表');
     return http.get('/v1/article/myCollect');
   }
 
@@ -86,7 +118,10 @@ class ArticleContentApi {
     if (data.pageSize !== undefined) queryParams.push(`pageSize=${data.pageSize}`);
     if (data.title) queryParams.push(`title=${encodeURIComponent(data.title)}`);
 
-    return http.get(`/v1/article/new?${queryParams.join('&')}`);
+    const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+
+    console.log(`[API] 请求最新文章: /v1/article/new${queryString}`);
+    return http.get(`/v1/article/new${queryString}`);
   }
 
   /**
@@ -100,7 +135,10 @@ class ArticleContentApi {
     if (data.pageSize !== undefined) queryParams.push(`pageSize=${data.pageSize}`);
     if (data.title) queryParams.push(`title=${encodeURIComponent(data.title)}`);
 
-    return http.get(`/v1/article/hot?${queryParams.join('&')}`);
+    const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+
+    console.log(`[API] 请求热门文章: /v1/article/hot${queryString}`);
+    return http.get(`/v1/article/hot${queryString}`);
   }
 }
 

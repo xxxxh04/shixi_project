@@ -27,6 +27,8 @@ export class RouterConstant {
    * 学习平台内容
    */
   static readonly VIEWS_LEARN_CONTENT = 'views/Learn/LearnContent'
+
+  static readonly VIEWS_LEARN_LIST = 'views/Learn/LearnList'
   /**
    * 面试平台内容
    */
@@ -75,4 +77,5 @@ export class RouterConstant {
    * 用户协议
    */
   static readonly PAGE_USER_POLICY = 'pages/UserPolicyPage'
+
 }

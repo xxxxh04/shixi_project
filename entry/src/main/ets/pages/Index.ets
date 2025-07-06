@@ -83,7 +83,9 @@ struct Index {
     }
     .height(CommonConstant.HEIGHT_FULL)
     .width(CommonConstant.WIDTH_FULL)
-    .backgroundColor($r('app.color.background_color_gray'))
-    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])
+    .backgroundImage($r('app.media.background'))
+    .backgroundImageSize(ImageSize.Cover)
+    //.backgroundColor($r('app.color.background_color_gray'))
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP,SafeAreaEdge.BOTTOM])
   }
 }

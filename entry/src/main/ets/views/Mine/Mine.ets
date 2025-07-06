@@ -13,7 +13,7 @@ import {feedBackComponent} from './feedBackComponent'
 export struct Mine {
   @Styles fancy(){
     .margin({bottom:10})
-    .backgroundColor('#ECECEC')
+    .backgroundColor(Color.White)   //
     .border({
       width: 1,
       color: '#E5E5E5',
@@ -238,10 +238,11 @@ export struct Mine {
 
       .width(CommonConstant.WIDTH_FULL)
       .height(CommonConstant.HEIGHT_FULL)
-      .backgroundColor(Color.White)
-    }.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
-    .backgroundImage($r('app.media.background'))
-    .backgroundImageSize(ImageSize.Cover)
+      //.backgroundColor(Color.White)
+    }
+    // .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
+    // .backgroundImage($r('app.media.background'))
+    // .backgroundImageSize(ImageSize.Cover)
 
 
 

@@ -124,9 +124,12 @@ export struct SetUp {
       .hideBackButton(false)
 
 
-    }  .backgroundColor('#f8f8f8')
+    }  //.backgroundColor('#f8f8f8')
+    .backgroundImage($r('app.media.background'))
+    .backgroundImageSize(ImageSize.Cover)
     .width(CommonConstant.WIDTH_FULL)
     .height(CommonConstant.HEIGHT_FULL)
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
     .padding(10)
   }
 }

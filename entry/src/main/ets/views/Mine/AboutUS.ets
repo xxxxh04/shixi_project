@@ -92,6 +92,7 @@ export struct AboutUs {
       .height('100%')
     }.backgroundImage($r('app.media.background'))
     .backgroundImageSize(ImageSize.Cover)
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
 
   }
 }

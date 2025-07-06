@@ -116,6 +116,7 @@ export struct MineInfo {
               .height(20)
               .margin(10)
           }
+          .backgroundColor(Color.White)
           .margin({ bottom: 5,left:15,right:15 })
           .padding(5)
           .border({
@@ -143,6 +144,7 @@ export struct MineInfo {
               .height(20)
               .margin(10)
           }
+          .backgroundColor(Color.White)
           .margin({ left: 15 ,right: 15})
           .padding(5)
           .border({
@@ -164,6 +166,7 @@ export struct MineInfo {
     }
     .backgroundImage($r('app.media.background'))
     .backgroundImageSize(ImageSize.Cover)
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
 
 
 

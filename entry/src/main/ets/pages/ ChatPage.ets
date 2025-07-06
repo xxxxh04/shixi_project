@@ -24,7 +24,7 @@ export struct ChatPage {
       this.userInfo = {
         id: params.id,
         account: params.account,
-        nickname: params.nickname ,
+        nickname: params.nickname,
         avatarUri: params.avatarUri
       }
     } else {
@@ -33,9 +33,8 @@ export struct ChatPage {
     }
   }
 
-
   //  API Key
-  private readonly apiKey: string = ''
+  private readonly apiKey: string = 'sk-36aed09aa93341eba6bd5c9fe09584b0'
 
   async send() {
     if (!this.userInput.trim()) {
@@ -69,7 +68,7 @@ export struct ChatPage {
   TopBar() {
     Row() {
       Column() {
-        Image($r('app.media.icpn_back_black')) // 返回图标
+        Image($r('app.media.icpn_back_black'))// 返回图标
           .width(25)
           .height(25)
       }
@@ -80,11 +79,11 @@ export struct ChatPage {
         router.back(); // 返回上一页
       })
 
-      Text("AI助手") // 显示标题
+      Text("AI助手")// 显示标题
         .fontSize(18)
         .fontWeight(FontWeight.Medium)
         .maxLines(1)
-        .textOverflow({ overflow: TextOverflow.Ellipsis }) // 标题超出省略
+        .textOverflow({ overflow: TextOverflow.Ellipsis })// 标题超出省略
         .layoutWeight(1)
         .textAlign(TextAlign.Center)
 
@@ -96,61 +95,54 @@ export struct ChatPage {
     .backgroundColor('#f8f9fa')
   }
 
-
   build() {
     Column() {
       this.TopBar()
-      Scroll() {
-        Column() {
-          ForEach(this.messages, (msg: ChatMessage, index: number) => {
-            Row() {
-              // 助手头像（左侧）
-              if (msg.role !== 'user') {
-                Image($r('app.media.app_icon'))  // 固定助手头像资源
-                  .width(40)
-                  .height(40)
-                  .borderRadius(20)
-                  .margin({ right: 5 })
-              }
 
-              // 消息气泡
-              Text(`${msg.content}`)
-                .fontSize(18)
-                .backgroundColor(msg.role === 'user' ? '#D6EAF8' : '#F2F2F2')
-                .padding(10)
-                .borderRadius(6)
-                .constraintSize({ maxWidth: '72%' })
+      // ✅ 聊天框区域自适应高度
+      Column() {
+        Scroll() {
+          Column() {
+            ForEach(this.messages, (msg: ChatMessage, index: number) => {
+              Row() {
+                if (msg.role !== 'user') {
+                  Image($r('app.media.app_icon'))
+                    .width(40).height(40).borderRadius(20).margin({ right: 5 })
+                }
 
-              // 用户头像（右侧）
-              if (msg.role === 'user') {
-                Image($r(this.userInfo.avatarUri))  // 动态用户头像，确保是资源或网络链接
-                  .width(40)
-                  .height(40)
-                  .borderRadius(20)
-                  .margin({ left: 5 })
+                Text(msg.content)
+                  .fontSize(18)
+                  .backgroundColor(msg.role === 'user' ? '#D6EAF8' : '#F2F2F2')
+                  .padding(10)
+                  .borderRadius(6)
+                  .constraintSize({ maxWidth: '72%' })
+
+                if (msg.role === 'user') {
+                  Image($r(this.userInfo.avatarUri))
+                    .width(40).height(40).borderRadius(20).margin({ left: 5 })
+                }
               }
-            }
-            .width('100%')
-            .justifyContent(
-              msg.role === 'user' ? FlexAlign.End : FlexAlign.Start
-            )
-            .margin({ top: 5, bottom: 5 })
-            .alignItems(VerticalAlign.Top)
-          })
+              .width('100%')
+              .justifyContent(msg.role === 'user' ? FlexAlign.End : FlexAlign.Start)
+              .margin({ top: 5, bottom: 5 })
+              .alignItems(VerticalAlign.Top)
+            })
+          }
+          .padding(10)
         }
-        .padding(10)
+        .align(Alignment.Top)
       }
+      .layoutWeight(1) // ✅ 自动占满剩余高度，确保输入框有空间
 
-      .height('80%')
-
+      // 错误提示
       if (this.error) {
         Text(this.error)
           .fontColor(Color.Red)
           .margin({ top: 5, bottom: 5 })
       }
 
+      // ✅ 输入框固定在底部
       Row({ space: 6 }) {
-        // 自定义 placeholder 效果
         Stack() {
           TextInput({
             text: this.userInput,
@@ -161,7 +153,6 @@ export struct ChatPage {
             .padding({ left: 10 })
             .border({ width: 1, color: '#BBB', radius: 8 })
             .onChange((value: string) => this.userInput = value)
-
         }
         .width('75%')
 
@@ -173,7 +164,7 @@ export struct ChatPage {
       }
       .margin({ top: 10 })
     }
-    .padding(16)
+    .padding({top: 10, bottom : 10, left : 10 , right : 10})
     .width('100%')
     .height('100%')
   }

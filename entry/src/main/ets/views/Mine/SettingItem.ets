@@ -15,6 +15,8 @@ export struct SettingItem {
         .height(20)
         .margin(10)
     }
+    .margin({bottom:4,top:4})
+    .backgroundColor(Color.White)
     .width('100%')
     .padding({ left: 16, right: 16 })
     .height(48)

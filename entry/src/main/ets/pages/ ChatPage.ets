@@ -16,6 +16,7 @@ export struct ChatPage {
     nickname: '',
     avatarUri: 'app.media.icon_mine_avatar'
   }
+  @State isThinking: boolean = false
 
   aboutToAppear() {
     const params = AppStorage.get<UserInfo>('userInfo');
@@ -44,6 +45,7 @@ export struct ChatPage {
 
     this.error = ''
     this.isLoading = true
+    this.isThinking = true  // 👈 开始思考
 
     // 添加用户消息
     this.messages = [...this.messages, {
@@ -51,17 +53,28 @@ export struct ChatPage {
       content: this.userInput.trim()
     }]
 
-    const reply = await sendMessageToDeepSeek(this.messages, this.apiKey)
+    try {
+      const reply = await sendMessageToDeepSeek(this.messages, this.apiKey)
 
-    // 添加助手回复
-    this.messages = [...this.messages, {
-      role: 'assistant',
-      content: reply
-    }]
+      // 添加助手回复
+      this.messages = [...this.messages, {
+        role: 'assistant',
+        content: reply
+      }]
+    } catch (e) {
+      this.error = '请求失败'
+      // 添加错误提示消息（可选）
+      this.messages = [...this.messages, {
+        role: 'assistant',
+        content: '出错了，请稍后再试'
+      }]
+    }
 
     this.userInput = ''
     this.isLoading = false
+    this.isThinking = false  // 👈 结束思考
   }
+
 
   // 顶部导航栏构建函数
   @Builder
@@ -127,6 +140,24 @@ export struct ChatPage {
               .margin({ top: 5, bottom: 5 })
               .alignItems(VerticalAlign.Top)
             })
+            // 👇渲染思考中状态
+            if (this.isThinking) {
+              Row() {
+                Image($r('app.media.app_icon'))  // 固定助手头像
+                  .width(40).height(40).borderRadius(20).margin({ right: 5 })
+
+                Text('思考中...')
+                  .fontSize(18)
+                  .backgroundColor('#F2F2F2')
+                  .padding(10)
+                  .borderRadius(6)
+                  .constraintSize({ maxWidth: '72%' })
+              }
+              .width('100%')
+              .justifyContent(FlexAlign.Start)
+              .margin({ top: 5, bottom: 5 })
+              .alignItems(VerticalAlign.Top)
+            }
           }
           .padding(10)
         }

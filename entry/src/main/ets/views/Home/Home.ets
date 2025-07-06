@@ -6,10 +6,25 @@ import { LoadingComponent } from '../../components/LoadingComponent';
 import articleContentApi from '../../api/ArticleContentApi';
 import { ArticleContentData } from '../../api/ArticleContentApi.type';
 import { showToast } from '../../utils/Toast';
+import { IBestFloatBubble } from "@ibestservices/ibest-ui";
+import { IBestInit } from "@ibestservices/ibest-ui"
+import { window } from '@kit.ArkUI'
+import { UIAbility } from '@kit.AbilityKit'
 
-@Entry
+
+// export default class EntryAbility extends UIAbility {
+//   onWindowStageCreate(windowStage: window.WindowStage) {
+//     windowStage.loadContent('pages/Index', (err, data) => {
+//
+//     })
+//   }
+// }
+
+
+// @Entry
 @Component
 export struct Home {
+  @State isShow_2:boolean = false
   // 顶部“最新”标签是否选中
   @State newDividerShow: boolean = true;
   // 顶部“热门”标签是否选中
@@ -42,6 +57,13 @@ export struct Home {
    */
   async aboutToAppear() {
     await this.getArticleNewDataList(true, false);
+    setTimeout(()=>{
+      this.isShow_2 = true
+    },500)
+  }
+
+  aboutToDisappear(): void {
+    this.isShow_2 = false
   }
 
   /**
@@ -111,109 +133,134 @@ export struct Home {
     }
   }
 
+
   build() {
-    Column() {
-      // 顶部标签栏
-      Row({ space: 10 }) {
-        Column() {
-          Text('最新').textStyles();
-          if (this.newDividerShow) {
-            Divider().dividerStyles();
-          }
-        }.onClick(() => {
-          this.newDividerShow = true;
-          this.hotDividerShow = false;
-          this.page = 1;
-          this.isShow = false;
-          this.getArticleNewDataList(true, true);
-        });
-
-        Column() {
-          Text('热门').textStyles();
-          if (this.hotDividerShow) {
-            Divider().dividerStyles();
-          }
-        }.onClick(() => {
-          this.newDividerShow = false;
-          this.hotDividerShow = true;
-          this.page = 1;
-          this.isShow = false;
-          this.getArticleHotDataList(true, true);
-        });
-      }
-      .justifyContent(FlexAlign.Start)
-      .margin({ top: 10, bottom: 20 })
-      .width(CommonConstant.WIDTH_FULL);
-
-      // 搜索框
-      Search({ placeholder: '请输入关键字', value: $$this.keyword })
-        .placeholderFont({ size: 14 })
-        .textFont({ size: 14 })
-        .onSubmit(() => {
-          this.title = encodeURIComponent(this.keyword);
-          this.page = 1;
-          this.isShow = false;
-          this.getArticleDataList(true);
-        })
-        .width(CommonConstant.WIDTH_FULL)
-        .height(30);
-
-      // 列表或加载中
-      if (this.isShow) {
-        Refresh({ refreshing: $$this.isRefreshing }) {
-          // 渲染文章列表
-          List() {
-            ForEach(this.articleContentList, (item: ArticleContentData) => {
-              ListItem() {
-                ArticleComponent({ articleContentData: item })
-                  .onClick(() => {
-                    router.pushUrl({
-                      url: RouterConstant.VIEWS_HOME_ARTICLE_INFO,
-                      params: { articleId: item.id }
-                    });
-                  });
-              }
-            });
-
-            if (this.textShow) {
-              ListItem() {
-                Text('没有更多了')
-                  .fontColor('#999')
-                  .fontSize(14)
-                  .width(CommonConstant.WIDTH_FULL)
-                  .textAlign(TextAlign.Center)
-                  .margin({ top: 50 });
-              }
+    Stack() {
+      // 1. 主内容区
+      Column() {
+        // 顶部标签栏
+        Row({ space: 10 }) {
+          Column() {
+            Text('最新').textStyles();
+            if (this.newDividerShow) {
+              Divider().dividerStyles();
             }
-          }
-          .width(CommonConstant.WIDTH_FULL)
-          .height(CommonConstant.HEIGHT_FULL)
-          .scrollBar(BarState.Off)
-          .onReachEnd(() => {
-            if (!this.isLoad && this.total > this.page * this.pageSize) {
-              this.isLoad = true;
-              this.page++;
-              this.getArticleDataList(false);
-            } else {
-              this.textShow = true;
+          }.onClick(() => {
+            this.newDividerShow = true;
+            this.hotDividerShow = false;
+            this.page = 1;
+            this.isShow = false;
+            this.getArticleNewDataList(true, true);
+          });
+
+          Column() {
+            Text('热门').textStyles();
+            if (this.hotDividerShow) {
+              Divider().dividerStyles();
             }
+          }.onClick(() => {
+            this.newDividerShow = false;
+            this.hotDividerShow = true;
+            this.page = 1;
+            this.isShow = false;
+            this.getArticleHotDataList(true, true);
           });
         }
-        .onRefreshing(() => {
-          if (!this.isLoad) {
-            this.isLoad = true;
-            this.textShow = false;
+        .justifyContent(FlexAlign.Start)
+        .margin({ top: 10, bottom: 20 })
+        .width(CommonConstant.WIDTH_FULL);
+
+        // 搜索框
+        Search({ placeholder: '请输入关键字', value: $$this.keyword })
+          .placeholderFont({ size: 14 })
+          .textFont({ size: 14 })
+          .onSubmit(() => {
+            this.title = encodeURIComponent(this.keyword);
             this.page = 1;
+            this.isShow = false;
             this.getArticleDataList(true);
+          })
+          .width(CommonConstant.WIDTH_FULL)
+          .height(30);
+
+        // 列表或加载中
+        if (this.isShow) {
+          Refresh({ refreshing: $$this.isRefreshing }) {
+            // 渲染文章列表
+            List() {
+              ForEach(this.articleContentList, (item: ArticleContentData) => {
+                ListItem() {
+                  ArticleComponent({ articleContentData: item })
+                    .onClick(() => {
+                      router.pushUrl({
+                        url: RouterConstant.VIEWS_HOME_ARTICLE_INFO,
+                        params: { articleId: item.id }
+                      });
+                    });
+                }
+              });
+
+              if (this.textShow) {
+                ListItem() {
+                  Text('没有更多了')
+                    .fontColor('#999')
+                    .fontSize(14)
+                    .width(CommonConstant.WIDTH_FULL)
+                    .textAlign(TextAlign.Center)
+                    .margin({ top: 50 });
+                }
+              }
+            }
+            .width(CommonConstant.WIDTH_FULL)
+            .height(CommonConstant.HEIGHT_FULL)
+            .scrollBar(BarState.Off)
+            .onReachEnd(() => {
+              if (!this.isLoad && this.total > this.page * this.pageSize) {
+                this.isLoad = true;
+                this.page++;
+                this.getArticleDataList(false);
+              } else {
+                this.textShow = true;
+              }
+            });
           }
-        });
-      } else {
-        LoadingComponent();
+          .onRefreshing(() => {
+            if (!this.isLoad) {
+              this.isLoad = true;
+              this.textShow = false;
+              this.page = 1;
+              this.getArticleDataList(true);
+            }
+          });
+        } else {
+          LoadingComponent();
+        }
       }
+      .padding($r('app.float.common_padding'))
+      .width(CommonConstant.WIDTH_FULL)
+      .height(CommonConstant.HEIGHT_FULL);
+
+      // 2. AI浮窗
+      IBestFloatBubble({
+        show: this.isShow_2,
+        icon: $r('app.media.app_icon'),  // 图标资源
+        iconSize: 120,
+        pos: { right: 40, top: 40 },
+        bgColor: '#198cff',
+        bubbleSize: 48,
+        isMagnetic: true,
+        dragAxis:"xy",
+        bubbleShadow: {
+          radius: 12,
+          color: '#aaa2',
+          offsetX: 0,
+          offsetY: 4
+        },
+        onBubbleClick: () => {
+          router.pushUrl({ url: '/pages/AIChat' })
+        }
+      })
     }
-    .padding($r('app.float.common_padding'))
-    .width(CommonConstant.WIDTH_FULL)
-    .height(CommonConstant.HEIGHT_FULL);
   }
 }
 

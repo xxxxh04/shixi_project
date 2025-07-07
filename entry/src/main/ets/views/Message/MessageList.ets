@@ -136,7 +136,7 @@ struct MessageList {
     .title(this.title)
     .titleMode(NavigationTitleMode.Mini)
     .mode(NavigationMode.Stack)
-    .backgroundColor($r('app.color.background_color_gray'))
+    .backgroundColor($r('app.color.background_color'))
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])
   }
 }

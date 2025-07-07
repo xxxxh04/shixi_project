@@ -35,7 +35,7 @@ struct Learn {
       Text(title)
         .fontSize($r('app.float.common_font_size_big'))
         .fontWeight(FontWeight.Medium)
-        .fontColor('#191919')
+        .fontColor($r('app.color.text_color'))
     }.width(CommonConstant.WIDTH_FULL).margin({ top: 25, bottom: 15 })
   }
 
@@ -49,13 +49,13 @@ struct Learn {
       // 修复点 2: 内联文本样式
       Text(text)
         .fontSize($r('app.float.common_font_size_small'))
-        .fontColor('#191919')
+        .fontColor($r('app.color.text_color'))
         .fontWeight(FontWeight.Normal)
     }
     // 修复点 3: 内联列样式
     .width(75)
     .height($r('app.float.common_height_big'))
-    .backgroundColor($r('app.color.common_white'))
+    .backgroundColor($r('app.color.background_color'))
     .justifyContent(FlexAlign.Center)
     .borderRadius(8)
     .onClick(() => {
@@ -81,13 +81,13 @@ struct Learn {
       // 修复点 2: 内联文本样式
       Text(text)
         .fontSize($r('app.float.common_font_size_small'))
-        .fontColor('#191919')
+        .fontColor($r('app.color.text_color'))
         .fontWeight(FontWeight.Normal)
     }
     // 修复点 3: 内联列样式
     .width(75)
     .height($r('app.float.common_height_big'))
-    .backgroundColor($r('app.color.common_white'))
+    .backgroundColor($r('app.color.background_color'))
     .justifyContent(FlexAlign.Center)
     .borderRadius(8)
     .onClick(() => {
@@ -113,7 +113,7 @@ struct Learn {
           .width(CommonConstant.WIDTH_FULL)
         Text('').height($r('app.float.common_height_huge'))
           .fontWeight(FontWeight.Medium)
-          .fontColor('#191919')
+          .fontColor($r('app.color.text_color'))
       }
 
       this.fontTitleBuilder('学习工具')

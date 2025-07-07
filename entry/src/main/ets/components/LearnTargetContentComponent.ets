@@ -17,7 +17,7 @@ export struct LearnTargetContentComponent {
           Text(this.targetInfoVo.status === '0' ? '未完成' : '已完成')
             .fontColor(this.targetInfoVo.status === '0' ? '#848484' : '#1698CE')
             .fontSize($r('app.float.common_font_size_tiny'))
-          Text(this.targetInfoVo.time).fontColor($r('app.color.common_gray'))
+          Text(this.targetInfoVo.time).fontColor($r('app.color.text_color'))
             .fontSize($r('app.float.common_font_size_tiny'))
         }.width(CommonConstant.WIDTH_FULL).justifyContent(FlexAlign.SpaceBetween)
       }.width('90%').alignItems(HorizontalAlign.Start)
@@ -25,7 +25,7 @@ export struct LearnTargetContentComponent {
       .justifyContent(FlexAlign.SpaceAround)
     }
     .width(CommonConstant.WIDTH_FULL)
-    .backgroundColor($r('app.color.common_white'))
+    .backgroundColor($r('app.color.component_color'))
     .borderRadius(10)
     .justifyContent(FlexAlign.Center)
   }

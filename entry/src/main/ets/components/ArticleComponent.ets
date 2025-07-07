@@ -51,13 +51,13 @@ export struct ArticleComponent {
             .fontWeight(FontWeight.Medium)
           Text(this.articleContentData.time)
             .fontSize(12)
-            .fontColor('#666')
+            .fontColor($r('app.color.text_color'))
         }
         .margin({ left: 10 })
         .layoutWeight(1)
         Text(`${this.articleContentData.readCount ?? 0}阅读`)
           .fontSize(12)
-          .fontColor('#666')
+          .fontColor($r('app.color.text_color'))
       }
       .width('100%')
       .alignItems(VerticalAlign.Center)
@@ -66,15 +66,15 @@ export struct ArticleComponent {
       Row({ space: 8 }) {
         Text(getContentLabel(this.articleContentData.contentCategory))
           .fontSize(12)
-          .fontColor('#333')
+          .fontColor($r('app.color.text_color'))
           .padding({ top: 3, bottom: 3, left: 12, right: 12 })
-          .backgroundColor('#e6f7ff')
+          .backgroundColor($r('app.color.label_color'))
           .borderRadius(12)
         Text(getDifficultyLabel(this.articleContentData.difficultyCategory))
           .fontSize(12)
-          .fontColor('#333')
+          .fontColor($r('app.color.text_color'))
           .padding({ top: 3, bottom: 3, left: 12, right: 12 })
-          .backgroundColor('#f6ffed')
+          .backgroundColor($r('app.color.label_color'))
           .borderRadius(12)
       }
       .width('100%')                       // 让标签行占满宽度
@@ -93,7 +93,7 @@ export struct ArticleComponent {
     }
     .width('100%')
     .padding(12)
-    .backgroundColor(Color.White)
+    .backgroundColor($r('app.color.component_color'))
     .borderRadius(8)
     .margin({ bottom: 10 })
   }

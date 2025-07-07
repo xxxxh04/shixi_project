@@ -135,6 +135,7 @@ export struct ArticleInfo {
           })
 
         Text('内容详情')
+          .fontColor($r('app.color.text_color'))
           .fontWeight(FontWeight.Bold)
           .fontSize(22)
           .layoutWeight(1)
@@ -146,6 +147,7 @@ export struct ArticleInfo {
       // 标题 + 作者 + 时间/分类 + 点赞收藏
       Column() {
         Text(this.articleData.title)
+          .fontColor($r('app.color.text_color'))
           .width('100%')
           .fontWeight(FontWeight.Bold)
           .fontSize(18)
@@ -158,17 +160,17 @@ export struct ArticleInfo {
       .padding({ left: 15, right: 15 })
       .border({
         width: { bottom: 1 },
-        color: { bottom: '#f0f0f0' }
+        color: { bottom: 'app.color.text_color' }
       })
 
       // 正文内容
       Scroll() {
         Column({ space: 20 }) {
           LearnRichText({ richTextContent: this.articleData.content })
-            // .fontSize(16)
-            // .lineHeight(24)
-            // .textAlign(TextAlign.Start)
-            // .padding({ bottom: 30 })
+          // .fontSize(16)
+          // .lineHeight(24)
+          // .textAlign(TextAlign.Start)
+          // .padding({ bottom: 30 })
         }
         .width('100%')
         .padding(20)
@@ -180,6 +182,6 @@ export struct ArticleInfo {
     .width('100%')
     .height('100%')
     .padding({ left: 15, right: 15 })
-    .backgroundColor(Color.White)
+    .backgroundColor($r('app.color.background_color'))
   }
 }

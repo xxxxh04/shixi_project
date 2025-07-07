@@ -104,10 +104,10 @@ struct LearnTarget {
               Text('整体进度')
                 .fontSize($r('app.float.common_font_size_big'))
                 .fontWeight(FontWeight.Medium)
-                .fontColor('#191919')
+                .fontColor($r('app.color.text_color'))
                 .margin({ bottom: 10 })
               Text(this.countData.updateTime)
-                .fontColor($r('app.color.common_gray'))
+                .fontColor($r('app.color.text_color'))
                 .fontSize($r('app.float.common_font_size_tiny'))
             }.alignItems(HorizontalAlign.Start)
 
@@ -133,13 +133,13 @@ struct LearnTarget {
         // 分割线
         Divider()
           .strokeWidth((4))
-          .color('#FFFFFF')
+          .color('app.color.text_color')
 
         // 子目标
         Row() {
           Text('子目标')
             .fontSize($r('app.float.common_font_size_big')).fontWeight(FontWeight.Medium)
-            .fontColor('#191919')
+            .fontColor($r('app.color.text_color'))
           Image($r('app.media.icon_add'))
             .width(30)
             .aspectRatio(1)
@@ -173,7 +173,7 @@ struct LearnTarget {
               if (this.textShow) {
                 ListItem() {
                   Text($r('app.string.no_have_article'))
-                    .fontColor($r('app.color.common_gray'))
+                    .fontColor($r('app.color.text_color'))
                     .fontSize($r('app.float.common_font_size_small'))
                     .width(CommonConstant.WIDTH_FULL)
                     .textAlign(TextAlign.Center)
@@ -218,7 +218,7 @@ struct LearnTarget {
     .title($r('app.string.learn_target_title'))
     .titleMode(NavigationTitleMode.Mini)
     .mode(NavigationMode.Stack)
-    .backgroundColor($r('app.color.background_color_gray'))
+    .backgroundColor($r('app.color.background_color'))
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])
   }
 

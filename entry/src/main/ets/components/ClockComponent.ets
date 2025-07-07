@@ -11,13 +11,13 @@ export struct ClockComponent {
         .width(48).aspectRatio(1)
       Text(this.text)
         .fontSize($r('app.float.common_font_size_medium'))
-        .fontColor('#191919')
+        .fontColor($r('app.color.text_color'))
         .fontWeight(FontWeight.Normal)
 
     }
     .width(165)
     .height(90)
-    .backgroundColor($r('app.color.common_white'))
+    .backgroundColor($r('app.color.component_color'))
     .justifyContent(FlexAlign.Center)
     .borderRadius(8)
   }

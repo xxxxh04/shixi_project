@@ -33,7 +33,7 @@ export struct MessageComponent {
     }
     .width(CommonConstant.WIDTH_FULL)
     .height(80)
-    .backgroundColor($r('app.color.common_white'))
+    .backgroundColor($r('app.color.component_color'))
     .borderRadius(15)
     .padding(10)
   }

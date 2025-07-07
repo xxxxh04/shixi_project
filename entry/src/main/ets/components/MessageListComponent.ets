@@ -62,7 +62,7 @@ export struct MessageListComponent {
     }
     .width(CommonConstant.WIDTH_FULL)
     .height($r('app.float.common_height_medium'))
-    .backgroundColor($r('app.color.common_white'))
+    .backgroundColor($r('app.color.component_color'))
     .borderRadius(10)
     .padding($r('app.float.common_padding'))
     .onClick(() => {

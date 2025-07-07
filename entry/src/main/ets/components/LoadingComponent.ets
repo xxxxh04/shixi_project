@@ -17,7 +17,7 @@ export struct LoadingComponent {
       // 文字
       Text(this.message)
         .fontSize(14)
-        .fontColor(Color.Gray);
+        .fontColor($r('app.color.text_color'));
     }
     .height('80%')
     .width('100%')

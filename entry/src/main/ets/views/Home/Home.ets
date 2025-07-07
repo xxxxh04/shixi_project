@@ -61,9 +61,7 @@ export struct Home {
       this.isShow_2 = true
     },500)
   }
- onPageShow() {
-   this.isShow_2 = true
- }
+
   aboutToDisappear(): void {
     this.isShow_2 = false
   }
@@ -205,7 +203,7 @@ export struct Home {
               if (this.textShow) {
                 ListItem() {
                   Text('没有更多了')
-                    .fontColor('#999')
+                    .fontColor($r('app.color.text_color'))
                     .fontSize(14)
                     .width(CommonConstant.WIDTH_FULL)
                     .textAlign(TextAlign.Center)
@@ -259,11 +257,7 @@ export struct Home {
           offsetY: 4
         },
         onBubbleClick: () => {
-          this.isShow_2 = false
-          setTimeout(() => {
-            router.pushUrl({ url: 'pages/ ChatPage' })
-          }, 100)
-          // router.pushUrl({ url: 'pages/ ChatPage' })
+          router.pushUrl({ url: 'pages/ ChatPage' })
         }
       })
     }
@@ -273,13 +267,14 @@ export struct Home {
 // 样式扩展
 @Extend(Text)
 function textStyles() {
+  .fontColor($r('app.color.text_color'))
   .fontSize(20)
   .fontWeight(FontWeight.Medium);
 }
 
 @Extend(Divider)
 function dividerStyles() {
-  .color('#000')
+  .color($r('app.color.text_color'))
   .width(20)
   .strokeWidth(3);
 }

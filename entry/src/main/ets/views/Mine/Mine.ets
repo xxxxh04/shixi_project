@@ -13,7 +13,7 @@ import {feedBackComponent} from './feedBackComponent'
 export struct Mine {
   @Styles fancy(){
     .margin({bottom:10})
-    .backgroundColor(Color.White)   //
+    .backgroundColor($r('app.color.component_color'))
     .border({
       width: 1,
       color: '#E5E5E5',

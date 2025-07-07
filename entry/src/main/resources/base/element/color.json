@@ -19,6 +19,18 @@
     {
       "name": "background_color_gray",
       "value": "#f8f8f8"
+    },
+    {
+      "name": "component_color",
+      "value": "#f8f8f8"
+    },
+    {
+      "name": "text_color",
+      "value": "#000000"
+    },
+    {
+      "name": "label_color",
+      "value": "#FFE0E0E0"
     }
   ]
 }

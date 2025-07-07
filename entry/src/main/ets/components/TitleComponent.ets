@@ -8,6 +8,7 @@ export struct TitleComponent {
   build() {
     Row() {
       Text(this.title)
+        .fontColor($r('app.color.text_color'))
         .fontSize($r('app.float.common_font_size_huge'))
         .fontWeight(FontWeight.Medium)
     }.width(CommonConstant.WIDTH_FULL)

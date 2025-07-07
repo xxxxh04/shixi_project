@@ -257,6 +257,7 @@ export struct Home {
           offsetY: 4
         },
         onBubbleClick: () => {
+          this.isShow_2 = false
           router.pushUrl({ url: 'pages/ ChatPage' })
         }
       })

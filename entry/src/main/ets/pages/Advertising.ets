@@ -72,6 +72,7 @@ struct Advertising {
         .width('100%')
         .height('100%')
         .objectFit(ImageFit.Cover)
+        .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
 
       // 右上角倒计时与跳过按钮（在倒计时内才显示）
       if (this.countDownSeconds > 0) {

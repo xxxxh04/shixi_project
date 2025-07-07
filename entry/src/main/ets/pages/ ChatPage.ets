@@ -44,7 +44,7 @@ export struct ChatPage {
   }
 
   // AI 接口 key
-  private readonly apiKey: string = 'sk-36aed09aa93341eba6bd5c9fe09584b0'
+  private readonly apiKey: string = ''
 
   // 点击“发送”按钮处理逻辑
   async send() {

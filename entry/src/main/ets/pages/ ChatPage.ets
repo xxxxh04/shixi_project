@@ -193,8 +193,10 @@ export struct ChatPage {
           .enabled(!this.isLoading)
           .onClick(() => this.send())
       }
+
       .margin({ top: 10 })
     }
+    .expandSafeArea([SafeAreaType.SYSTEM, SafeAreaType.KEYBOARD], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
     .padding({top: 10, bottom : 10, left : 10 , right : 10})
     .width('100%')
     .height('100%')

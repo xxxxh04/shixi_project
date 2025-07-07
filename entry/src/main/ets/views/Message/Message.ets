@@ -108,39 +108,44 @@ export struct Message {
 
             // 消息标题
             Column({ space: 15 }) {
-              MessageComponent({
-                icon: $r('app.media.icon_system_message'),
-                title: '系统消息',
-                content: this.messageInfoNew[0].content,
-                unReadCount: this.userMassageCount.systemUnReadQuantity
-              })
-                .onClick(() => {
-                  // 路由到消息内容主体页面
-                  router.pushUrl({
-                    url: RouterConstant.VIEWS_MESSAGE_LIST,
-                    params: {
-                      "type": '1',
-                      "title": '系统消息'
-                    }
-                  });
+              if(this.messageInfoNew.length > 0){
+                MessageComponent({
+                  icon: $r('app.media.icon_system_message'),
+                  title: '系统消息',
+                  content: this.messageInfoNew[0].content,
+                  unReadCount: this.userMassageCount.systemUnReadQuantity
                 })
+                  .onClick(() => {
+                    // 路由到消息内容主体页面
+                    router.pushUrl({
+                      url: RouterConstant.VIEWS_MESSAGE_LIST,
+                      params: {
+                        "type": '1',
+                        "title": '系统消息'
+                      }
+                    });
+                  })
+              }
 
-              MessageComponent({
-                icon: $r('app.media.icon_public_message'),
-                title: '通知公告',
-                content: this.messageInfoNew[1].content,
-                unReadCount: this.userMassageCount.noticeUnReadQuantity
-              })
-                .onClick(() => {
-                  // 路由到消息内容主体页面
-                  router.pushUrl({
-                    url: RouterConstant.VIEWS_MESSAGE_LIST,
-                    params: {
-                      "type": '2',
-                      "title": '通知公告'
-                    }
-                  });
+              if(this.messageInfoNew.length > 1){
+                MessageComponent({
+                  icon: $r('app.media.icon_public_message'),
+                  title: '通知公告',
+                  content: this.messageInfoNew[1].content,
+                  unReadCount: this.userMassageCount.noticeUnReadQuantity
                 })
+                  .onClick(() => {
+                    // 路由到消息内容主体页面
+                    router.pushUrl({
+                      url: RouterConstant.VIEWS_MESSAGE_LIST,
+                      params: {
+                        "type": '2',
+                        "title": '通知公告'
+                      }
+                    });
+                  })
+              }
+
             }
           }
           .height(CommonConstant.HEIGHT_FULL)

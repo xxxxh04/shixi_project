@@ -171,15 +171,8 @@ struct LearnContent {
         .width('100%')
         .margin({ top: 10 })
 
-        // 封面图（如果有）
-        if (this.articleData.coverUrl) {
-          Image(this.articleData.coverUrl)
-            .width('100%')
-            .aspectRatio(2)
-            .objectFit(ImageFit.Cover)
-            .borderRadius(8)
-            .margin({ top: 15 })
-        }
+        // 已删除封面图片部分
+        // 原封面图片代码已移除
 
         Divider() // 分割线
           .margin({ top: 15, bottom: 10 })
@@ -236,10 +229,10 @@ struct LearnContent {
       Column() {
         // Text(this.articleData.content) // 内容文本
         LearnRichText({ richTextContent: this.articleData.content })
-          // .fontSize(16)
-          // .lineHeight(24)
-          // .textAlign(TextAlign.Start)
-          // .width('100%')
+        // .fontSize(16)
+        // .lineHeight(24)
+        // .textAlign(TextAlign.Start)
+        // .width('100%')
       }
       .width('100%')
       .padding(16)

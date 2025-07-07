@@ -257,7 +257,7 @@ export struct Home {
           offsetY: 4
         },
         onBubbleClick: () => {
-          router.pushUrl({ url: '/pages/AIChat' })
+          router.pushUrl({ url: 'pages/ ChatPage' })
         }
       })
     }

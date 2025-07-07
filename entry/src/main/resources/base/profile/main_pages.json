@@ -5,6 +5,7 @@
     "pages/LoginPage",
     "pages/PrivacyPolicyPage",
     "pages/UserPolicyPage",
+    "pages/ ChatPage",
     "views/Home/ArticleInfo",
     "views/Learn/Learn",
     "views/Learn/LearnTarget",

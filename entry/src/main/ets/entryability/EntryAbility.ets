@@ -1,6 +1,7 @@
 import { AbilityConstant, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
+import { KeyboardAvoidMode } from '@kit.ArkUI'
 // 重点 ↓
 import { IBestInit, IBestSetGlobalConfig } from '@ibestservices/ibest-ui'; // 多加一个全局配置
 
@@ -25,7 +26,13 @@ export default class EntryAbility extends UIAbility {
         return;
       }
       hilog.info(DOMAIN, 'testTag', 'Succeeded in loading the content.');
-
+      try {
+        let mainWindow = windowStage.getMainWindowSync()
+        let uiContext = mainWindow.getUIContext()
+        uiContext.setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE)
+      } catch (e) {
+        console.error('设置键盘模式失败:', JSON.stringify(e))
+      }
       // ========== 组件库初始化（必须） ==========
       IBestInit(windowStage, this.context);
       // ========== 全局配置（必须） ==========

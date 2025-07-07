@@ -18,10 +18,11 @@ struct UserPolicyPage {
         .width('100%')
         .height('100%')
     }
-    // Navigation 容器属性
-    .width('100%')
-    .height('100%')
-    .title('用户协议') // 标题
+    .title('用户协议')
+    .titleMode(NavigationTitleMode.Mini)
     .mode(NavigationMode.Stack)
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])
+    .height('100%')
+    .width('100%')
   }
 }

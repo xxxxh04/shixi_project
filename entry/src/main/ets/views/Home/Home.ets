@@ -61,7 +61,9 @@ export struct Home {
       this.isShow_2 = true
     },500)
   }
-
+ onPageShow() {
+   this.isShow_2 = true
+ }
   aboutToDisappear(): void {
     this.isShow_2 = false
   }
@@ -257,7 +259,11 @@ export struct Home {
           offsetY: 4
         },
         onBubbleClick: () => {
-          router.pushUrl({ url: 'pages/ ChatPage' })
+          this.isShow_2 = false
+          setTimeout(() => {
+            router.pushUrl({ url: 'pages/ ChatPage' })
+          }, 100)
+          // router.pushUrl({ url: 'pages/ ChatPage' })
         }
       })
     }

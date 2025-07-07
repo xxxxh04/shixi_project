@@ -45,7 +45,7 @@ export struct ChatPage {
 
     this.error = ''
     this.isLoading = true
-    this.isThinking = true  // 👈 开始思考
+    this.isThinking = true
 
     // 添加用户消息
     this.messages = [...this.messages, {
@@ -53,27 +53,46 @@ export struct ChatPage {
       content: this.userInput.trim()
     }]
 
+    const userMsg = this.userInput.trim()
+    this.userInput = ''
+
     try {
       const reply = await sendMessageToDeepSeek(this.messages, this.apiKey)
 
-      // 添加助手回复
-      this.messages = [...this.messages, {
+      // 先添加一个空的助手消息
+      const newAssistantMsg: ChatMessage = {
         role: 'assistant',
-        content: reply
-      }]
+        content: ''
+      }
+      this.messages = [...this.messages, newAssistantMsg]
+      const newMsgIndex = this.messages.length - 1
+
+      this.isThinking = false
+      // 流式输出逻辑
+      let i = 0
+      const interval = setInterval(() => {
+        if (i < reply.length) {
+          this.messages[newMsgIndex].content += reply[i]
+          // 触发 State 变化以刷新视图（创建新数组）
+          this.messages = [...this.messages]
+          i++
+        } else {
+          clearInterval(interval)
+          this.isLoading = false
+          this.isThinking = false
+        }
+      }, 30) // 每 30ms 输出一个字符，可根据体验调节
     } catch (e) {
       this.error = '请求失败'
-      // 添加错误提示消息（可选）
       this.messages = [...this.messages, {
         role: 'assistant',
         content: '出错了，请稍后再试'
       }]
+      this.isLoading = false
+      this.isThinking = false
     }
-
-    this.userInput = ''
-    this.isLoading = false
-    this.isThinking = false  // 👈 结束思考
   }
+
 
 
   // 顶部导航栏构建函数

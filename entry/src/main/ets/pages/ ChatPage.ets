@@ -2,7 +2,7 @@
 import { sendMessageToDeepSeek, ChatMessage } from '../utils/RequestUtil'
 import { router } from '@kit.ArkUI'
 import { UserInfo } from '../api/UserApi.type'
-
+import { IBestLoading } from "@ibestservices/ibest-ui";
 @Entry
 @Component
 export struct ChatPage {
@@ -131,7 +131,7 @@ export struct ChatPage {
                   .constraintSize({ maxWidth: '72%' })
 
                 if (msg.role === 'user') {
-                  Image($r(this.userInfo.avatarUri))
+                  Image(this.userInfo.avatarUri)
                     .width(40).height(40).borderRadius(20).margin({ left: 5 })
                 }
               }
@@ -146,12 +146,16 @@ export struct ChatPage {
                 Image($r('app.media.app_icon'))  // 固定助手头像
                   .width(40).height(40).borderRadius(20).margin({ right: 5 })
 
-                Text('思考中...')
+                Text('亲，请稍等，小助手正十万火急的思考你的问题')
                   .fontSize(18)
                   .backgroundColor('#F2F2F2')
                   .padding(10)
                   .borderRadius(6)
                   .constraintSize({ maxWidth: '72%' })
+                IBestLoading({
+                  loadingText: "思考中...",
+                  loadingIconType: "spinner"
+                })
               }
               .width('100%')
               .justifyContent(FlexAlign.Start)

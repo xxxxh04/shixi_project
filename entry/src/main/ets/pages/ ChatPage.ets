@@ -35,7 +35,7 @@ export struct ChatPage {
   }
 
   //  API Key
-  private readonly apiKey: string = 'sk-36aed09aa93341eba6bd5c9fe09584b0'
+  private readonly apiKey: string = ''
 
   async send() {
     if (!this.userInput.trim()) {

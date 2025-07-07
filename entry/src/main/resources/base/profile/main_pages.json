@@ -14,7 +14,6 @@
     "views/Mine/MineCollect",
     "views/Mine/MineLike",
     "views/Message/MessageList",
-    "views/Message/systemInfo",
     "views/Learn/Clock",
     "views/Learn/LearnTool",
     "views/Learn/ClockRecord",

@@ -1,120 +1,165 @@
-
-import { router } from '@kit.ArkUI'
-import AppRouter from '@ohos.router';
+import { MessageComponent } from '../../components/MessageComponent';
+import { TitleComponent } from '../../components/TitleComponent';
+import { CommonConstant } from '../../contants/CommonConstant';
+import { router } from '@kit.ArkUI';
 import { RouterConstant } from '../../contants/RouterConstant';
+import messageApi from '../../api/MessageApi';
+import { MessageInfoNew, UserMessageCount } from '../../api/MessageApi.type';
+import { LoadingComponent } from '../../components/LoadingComponent';
+import { showToast } from '../../utils/Toast';
+import { EventBus, EventType } from '../../utils/EventBus'; // 导入EventBus
 
 @Entry
 @Component
 export struct Message {
-  // 🔴 这里声明状态
-  @State sysMsgUnread: boolean = true
-  @State notifyUnread: boolean = true
+  @State title: string = '消息'
+  // 消息总数量和未读
+  @State userMassageCount: UserMessageCount = {
+    totalQuantity: 0,
+    totalUnReadQuantity: 0,
+    systemUnReadQuantity: 0,
+    noticeUnReadQuantity: 0
+  }
+  // 最新消息
+  @State messageInfoNew: MessageInfoNew[] = []
+  // 控制当前页面展示
+  @State isShow: boolean = false
+  // 定义一个状态属性，用来和Refresh组件进行双向数据绑定
+  @State isRefreshing: boolean = false
+  // 节流, false表示未请求, true表示正在请求
+  isLoad: boolean = false
+
+  /**
+   * 生命周期函数 - 页面首次加载
+   */
+  async aboutToAppear() {
+    // 注册事件监听
+    EventBus.on(EventType.REFRESH_MESSAGE, this.handleRefresh.bind(this));
+    this.getMessageData(false);
+  }
+
+  aboutToDisappear() {
+    // 取消事件监听
+    EventBus.off(EventType.REFRESH_MESSAGE);
+  }
+
+  /**
+   * 处理刷新事件
+   */
+  private handleRefresh() {
+    if (!this.isLoad) {
+      this.isLoad = true;
+      // this.isRefreshing = true; // 显示刷新状态
+      this.getMessageData(true);
+    }
+  }
+
+  /**
+   * 获取消息数据
+   * @param isUpdate 是否显示更新提示
+   */
+  async getMessageData(isUpdate: boolean) {
+    try {
+      // 查询用户获得的消息总数量和未读
+      const userMassageCount = await messageApi.getUserMessageCount();
+      this.userMassageCount = userMassageCount;
+
+      // 获取最新消息
+      this.messageInfoNew = await messageApi.getMessageNew();
+
+      // 是否刷新
+      // if (isUpdate) {
+      //   showToast("已更新");
+      // }
+    } catch (error) {
+      console.error("获取消息数据失败:", error);
+      showToast("数据加载失败");
+    } finally {
+      // 页面展示数据
+      this.isShow = true;
+      // 节流，防止用户重复下拉
+      this.isLoad = false;
+      this.isRefreshing = false;
+    }
+  }
 
   build() {
-    Column({ space: 15 }) {
-      // 标题
-      Text('消息')
-        .margin({ top:15, left:15 })
-        .fontSize(25)
-        .width('100%')
-        .fontWeight(FontWeight.Bold)
-        .textAlign(TextAlign.Start)
+    Column() {
+      // 标题栏
+      TitleComponent({ title: this.title })
+      if (this.isShow) {
+        Refresh({ refreshing: $$this.isRefreshing }) {
+          Column() {
+            // 消息统计
+            Row({ space: 10 }) {
+              Text('共' + this.userMassageCount.totalQuantity + '条信息')
+                .fontColor($r('app.color.common_gray'))
+                .fontSize($r('app.float.common_font_size_medium'))
+                .fontWeight(FontWeight.Medium)
 
-      // 消息总数
-      Text('一共2条消息（未读0条）')
-        .width('100%')
-        .textAlign(TextAlign.Start)
-        .margin({ left:10, top:20 })
+              Text('(未读' + this.userMassageCount.totalUnReadQuantity + '条)')
+                .fontColor('#406EFE')
+                .fontSize($r('app.float.common_font_size_medium'))
+                .fontWeight(FontWeight.Medium)
+            }
+            .width(CommonConstant.WIDTH_FULL)
+            .justifyContent(FlexAlign.Start)
+            .margin({ bottom: 15 })
 
-      // 系统消息
-      Row({ space:10 }) {
-        Image($r('app.media.icon_system_message'))
-          .width('10%')
+            // 消息标题
+            Column({ space: 15 }) {
+              MessageComponent({
+                icon: $r('app.media.icon_system_message'),
+                title: '系统消息',
+                content: this.messageInfoNew[0].content,
+                unReadCount: this.userMassageCount.systemUnReadQuantity
+              })
+                .onClick(() => {
+                  // 路由到消息内容主体页面
+                  router.pushUrl({
+                    url: RouterConstant.VIEWS_MESSAGE_LIST,
+                    params: {
+                      "type": '1',
+                      "title": '系统消息'
+                    }
+                  });
+                })
 
-        Column({ space:5 }) {
-          Text('系统消息')
-            .width('100%')
-            .fontSize(20)
-            .fontWeight(FontWeight.Medium)
-            .textAlign(TextAlign.Start)
-
-          Text('希望大家能在百得知识库学到对应的知识.')
-            .width('100%')
-            .fontSize(16)
-            .fontColor(Color.Gray)
-            .textAlign(TextAlign.Start)
-            .maxLines(1)
-            .textOverflow({overflow:TextOverflow.Ellipsis})
+              MessageComponent({
+                icon: $r('app.media.icon_public_message'),
+                title: '通知公告',
+                content: this.messageInfoNew[1].content,
+                unReadCount: this.userMassageCount.noticeUnReadQuantity
+              })
+                .onClick(() => {
+                  // 路由到消息内容主体页面
+                  router.pushUrl({
+                    url: RouterConstant.VIEWS_MESSAGE_LIST,
+                    params: {
+                      "type": '2',
+                      "title": '通知公告'
+                    }
+                  });
+                })
+            }
+          }
+          .height(CommonConstant.HEIGHT_FULL)
         }
-
-        // 🔴 红点
-        if (this.sysMsgUnread) {
-          Blank()
-            .width(12)
-            .height(12)
-            .backgroundColor('#FF3B30')
-            .borderRadius(6)
-            .margin({ left:5, top:8 })
-        }
-      }
-      .onClick(() => {
-        AppRouter.pushUrl({
-          url: RouterConstant.VIEWS_MESSAGE_LIST,
-          params: { type: 'system' }
+        .onRefreshing(() => {
+          if (!this.isLoad) {
+            this.isLoad = true
+            this.isRefreshing = true
+            // 查询消息数据
+            this.getMessageData(true)
+          }
         })
-        // 点击后标记为已读
-        this.sysMsgUnread = false
-      })
-      .width('95%')
-      .height(60)
-      .backgroundColor(Color.White)
-      .borderRadius(20)
-      // 通知公告
-
-      Row({ space:10 }) {
-        Image($r('app.media.icon_bottom_message_selected'))
-          .width('10%')
-
-
-        Column({ space:5 }) {
-          Text('通知公告')
-            .width('100%')
-            .fontSize(20)
-            .fontWeight(FontWeight.Medium)
-            .textAlign(TextAlign.Start)
-
-          Text('大家记得仔细阅读隐私政策和用户协议...')
-            .fontSize(16)
-            .width('100%')
-            .fontColor(Color.Gray)
-            .textAlign(TextAlign.Start)
-        }
-
-        if (this.notifyUnread) {
-          Blank()
-            .width(12)
-            .height(12)
-            .backgroundColor('#FF3B30')
-            .borderRadius(6)
-
-            .margin({ left:5, top:8 })
-        }
+      } else {
+        // 加载组件
+        LoadingComponent()
       }
-
-      .onClick(() => {
-        router.pushUrl({
-          url: 'views/Message/systemInfo'
-        })
-        this.notifyUnread = false
-      })
-      .width('95%')
-      .height(60)
-      .backgroundColor(Color.White)
-      .borderRadius(20)
     }
-    .width('100%')
-    .height('100%')
-    .backgroundImage($r('app.media.background'))
-    .backgroundImageSize(ImageSize.Cover)
+    .padding($r('app.float.common_padding'))
+    .height(CommonConstant.HEIGHT_FULL)
+    .width(CommonConstant.WIDTH_FULL)
   }
 }

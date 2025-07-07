@@ -11,7 +11,6 @@ export struct CalendarComponent {
     let weeks: Array<Array<number | null>> = []
     let week: Array<number | null> = []
     let day = 1
-    // 前置空格
     for (let i = 0; i < firstDay; i++) week.push(null)
     while (day <= daysInMonth) {
       week.push(day)
@@ -21,7 +20,6 @@ export struct CalendarComponent {
       }
       day++
     }
-    // 最后一周补齐空位
     if (week.length > 0) {
       while (week.length < 7) week.push(null)
       weeks.push(week)
@@ -42,58 +40,30 @@ export struct CalendarComponent {
       // 年月切换
       Row() {
         Button('«')
-          .onClick(() => {
-            this.currentYear--
-          })
-          .width(45)
-          .height(38)
-          .fontSize(22)
-          .backgroundColor('#f5f5f5')
-          .fontColor('#198cff')
-          .borderRadius(19)
+          .onClick(() => { this.currentYear-- })
+          .width(45).height(38).fontSize(22)
+          .backgroundColor('#f5f5f5').fontColor('#198cff').borderRadius(19)
         Button('<')
           .onClick(() => {
-            if (this.currentMonth === 1) {
-              this.currentYear--
-              this.currentMonth = 12
-            } else {
-              this.currentMonth--
-            }
+            if (this.currentMonth === 1) { this.currentYear--; this.currentMonth = 12 }
+            else { this.currentMonth-- }
           })
-          .width(42)
-          .height(38)
-          .fontSize(22)
-          .backgroundColor('#f5f5f5')
-          .fontColor('#198cff')
-          .borderRadius(19)
+          .width(42).height(38).fontSize(22)
+          .backgroundColor('#f5f5f5').fontColor('#198cff').borderRadius(19)
         Text(`${this.currentYear}年${this.currentMonth < 10 ? '0' + this.currentMonth : this.currentMonth}月`)
           .fontSize(20).fontWeight(FontWeight.Bold)
           .width('36%').textAlign(TextAlign.Center)
         Button('>')
           .onClick(() => {
-            if (this.currentMonth === 12) {
-              this.currentYear++
-              this.currentMonth = 1
-            } else {
-              this.currentMonth++
-            }
+            if (this.currentMonth === 12) { this.currentYear++; this.currentMonth = 1 }
+            else { this.currentMonth++ }
           })
-          .width(43)
-          .height(38)
-          .fontSize(22)
-          .backgroundColor('#f5f5f5')
-          .fontColor('#198cff')
-          .borderRadius(19)
+          .width(43).height(38).fontSize(22)
+          .backgroundColor('#f5f5f5').fontColor('#198cff').borderRadius(19)
         Button('»')
-          .onClick(() => {
-            this.currentYear++
-          })
-          .width(45)
-          .height(38)
-          .fontSize(22)
-          .backgroundColor('#f5f5f5')
-          .fontColor('#198cff')
-          .borderRadius(19)
+          .onClick(() => { this.currentYear++ })
+          .width(45).height(38).fontSize(22)
+          .backgroundColor('#f5f5f5').fontColor('#198cff').borderRadius(19)
       }
       .justifyContent(FlexAlign.SpaceBetween)
       .margin({ top: 10, bottom: 8 })
@@ -115,28 +85,29 @@ export struct CalendarComponent {
         Row() {
           ForEach(week, (d: number | null, di: number) => {
             if (d !== null) {
-              Button(`${d}`)
-                .width(46)
-                .height(46)
-                .fontSize(12)
-                .backgroundColor(this.isClocked(d) ? '#198cff' : '#f3f5f7')
-                .fontColor(this.isClocked(d) ? '#fff' : '#333')
-                .borderRadius(23)
-                .margin({
-                  left: 2,
-                  right: 2,
-                  top: 4,
-                  bottom: 4
+              // 用 Stack 做一个可点的纯方格
+              Stack() {
+                Rect()
+                  .width(46).height(46)
+                  .fill(this.isClocked(d) ? '#198cff' : '#f3f5f7')
+                  .border({ color: '#e0e0e0', width: 1 })
+                  .radius(0) // 重点！！！！
+                Text(`${d}`)
+                  .fontColor(this.isClocked(d) ? '#fff' : '#333')
+                  .fontSize(14)
+                  .align(Alignment.Center)
+              }
+              .width(46).height(46)
+              .margin({ left: 2, right: 2, top: 4, bottom: 4 })
+              .gesture(
+                TapGesture().onAction(() => {
+                  // 点击逻辑
                 })
+              )
             } else {
-              Text('')
-                .width(46).height(46)
-                .margin({
-                  left: 2,
-                  right: 2,
-                  top: 4,
-                  bottom: 4
-                })
+              // 空格
+              Blank().width(46).height(46)
+                .margin({ left: 2, right: 2, top: 4, bottom: 4 })
             }
           })
         }

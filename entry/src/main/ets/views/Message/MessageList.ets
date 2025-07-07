@@ -1,104 +1,142 @@
+import { MessageListComponent } from '../../components/MessageListComponent'
+import { CommonConstant } from '../../contants/CommonConstant'
+import { router } from '@kit.ArkUI'
+import messageApi from '../../api/MessageApi'
+import { UserMessageInfo } from '../../api/MessageApi.type'
+import { LoadingComponent } from '../../components/LoadingComponent'
+import { showToast } from '../../utils/Toast'
+import { EventBus, EventType } from '../../utils/EventBus'; // 导入EventBus
 
 @Entry
 @Component
-export struct MessageList {
+struct MessageList {
+  // 页面标题
+  @State title: string = '系统消息'
+  // 类型
+  @State type: string = '1'
+  // 页面数据
+  @State messageList: UserMessageInfo[] = []
+  // 控制当前页面展示
+  @State isShow: boolean = false
+  // 定义一个状态属性，用来和Refresh组件进行双向数据绑定
+  @State isRefreshing: boolean = false
+  // 节流, false表示未请求, true表示正在请求
+  isLoad: boolean = false
+  // 当前页
+  @State page: number = 1
+  // 每一页大小
+  @State pageSize: number = 12
+  // 当前消息数据总记录数
+  @State total: number = 0
+  // 是否展示文本，列表到底
+  @State textShow: boolean = false
 
-  @State showDialog: boolean = false
+  aboutToAppear() {
+    // 获取当前页面标题
+    const param = router.getParams() as object
+    if (param) {
+      this.title = param["title"] as string
+      this.type = param["type"] as string
+      // 根据类型获取页面数据
+      this.getMessageList(true, false)
+    }
+  }
+
+  aboutToDisappear() {
+    // 当离开页面时触发刷新事件
+    EventBus.emit(EventType.REFRESH_MESSAGE);
+  }
+
+  /**
+   * 根据类型获取页面数据
+   */
+  async getMessageList(isFlushed: boolean, isUpdate: boolean) {
+    // 查询接口
+    const userMessagePageInfo =
+      await messageApi.getMessageList({ type: this.type, page: this.page, pageSize: this.pageSize })
+    // 判断是否是刷新还是下拉
+    isFlushed ? this.messageList = userMessagePageInfo.records : this.messageList.push(...userMessagePageInfo.records);
+    this.total = userMessagePageInfo.total
+    // 判断总数据
+    if (this.total > this.page * this.pageSize) {
+      this.textShow = false
+    } else {
+      this.textShow = true
+    }
+    this.isShow = true
+    // 节流，防止用户重复下拉
+    this.isLoad = false
+    this.isRefreshing = false
+    // 是否刷新
+    if (isUpdate) {
+      showToast("已更新")
+    }
+  }
 
   build() {
+    Navigation() {
+      if (this.isShow) {
+        // 刷新
+        Refresh({ refreshing: $$this.isRefreshing }) {
+          Column() {
+            // 消息列表
+            List({ space: 15 }) {
+              ForEach(this.messageList, (item: UserMessageInfo) => {
+                ListItem() {
+                  // 消息内容
+                  MessageListComponent({ userMessageInfo: item })
+                }
+              })
+              if (this.textShow) {
+                ListItem() {
+                  Text($r('app.string.no_have_article'))
+                    .fontColor($r('app.color.common_gray'))
+                    .fontSize($r('app.float.common_font_size_small'))
+                    .width(CommonConstant.WIDTH_FULL)
+                    .textAlign(TextAlign.Center)
+                    .margin({ top: 20 })
+                }
+              }
+            }
+            .scrollBar(BarState.Off)
+            .onReachEnd(() => {
+              if (!this.isLoad) {
+                if (this.total > this.page * this.pageSize) {
+                  this.isLoad = true
+                  this.page++
+                  this.getMessageList(false, false)
+                } else {
+                  this.textShow = true
+                }
+              }
+            })
 
-    Stack(){
-
-      Column() {Navigation(){
-        // 顶部标题栏
-
-        Column()
-
-        {
-          Row()
-
-          {
-            Text('欢迎大家来到百得知识库')
-              .fontSize(18)
-              .fontWeight(FontWeight.Medium)
-              .textAlign(TextAlign.Start)
-              .flexGrow(1)
-
-            Text('2025-07-06')
-              .fontSize(14)
-              .fontWeight(FontWeight.Normal)
-              .fontColor(Color.Gray)
-              .textAlign(TextAlign.End)
-          }.width('100%')
-          //.justifyContent(SpaceBetween)
-          .alignItems(VerticalAlign.Center)
-
-          Text('希望大家能在百得知识库里学到更多知识，不断进步与成长。')
-            .width('100%')
-            .margin({ top: 8 })
-            .fontSize(15)
-            .fontWeight(FontWeight.Normal)
-            .fontColor(Color.Gray)
-            .textAlign(TextAlign.Start)
-
-        }.width('95%')
-        .margin({ top: 20 })
-        .padding({ top: 15, bottom: 15, left: 15, right: 15 })
-        .backgroundColor(Color.White)
-        .borderRadius(20)
-
-        .onClick(() => {
-          // this.newName = this.userName
-          this.showDialog = true
+          }.padding($r('app.float.common_padding'))
+          .height(CommonConstant.HEIGHT_FULL)
+          .width(CommonConstant.WIDTH_FULL)
+        }
+        .onRefreshing(() => {
+          if (!this.isLoad) {
+            this.isLoad = true
+            this.textShow = false
+            // 页面恢复到1
+            this.page = 1
+            // 查询消息数据
+            this.getMessageList(true, true)
+          }
         })
-
-      }.title('系统消息') // ✅ 正确设置标题
-      .titleMode(NavigationTitleMode.Mini) // ✅ 设置标题模式
-      .mode(NavigationMode.Stack) // ✅ 设置导航模式
-      .hideBackButton(false)
-      .width('100%')
-      .height('100%')
-      .backgroundImage($r('app.media.background'))
-      .backgroundImageSize(ImageSize.Cover)
+      } else {
+        // 加载组件
+        LoadingComponent()
       }
 
-      if (this.showDialog) {
-        this.EditNameDialog()
-      }
     }
-    .width('100%')
-    .height('100%')
-
+    .height(CommonConstant.HEIGHT_FULL)
+    .width(CommonConstant.WIDTH_FULL)
+    .title(this.title)
+    .titleMode(NavigationTitleMode.Mini)
+    .mode(NavigationMode.Stack)
+    .backgroundColor($r('app.color.background_color_gray'))
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP])
   }
-
-  @Builder
-  EditNameDialog() {
-    Column() {
-      Text('消息内容')
-        .fontSize(20)
-        .margin(10)
-      Text('欢迎大家来到百得知识库,希望大家能在百得知识库里学到更多知识，不断进步与成长。')
-
-      Row() {
-        Button('确定')
-          .backgroundColor('#007DFF')
-          .onClick(() => {
-            this.showDialog = false
-          })
-      }
-      .width('100%')
-      .justifyContent(FlexAlign.End)
-      .margin({ top: 20 })
-    }
-    .width('80%')
-    .padding(20)
-    .backgroundColor(Color.White)
-    .borderRadius(16)
-    .shadow({ radius: 12, color: '#1A000000', offsetX: 2, offsetY: 4 })
-  }
-
 }
-
-
-
-

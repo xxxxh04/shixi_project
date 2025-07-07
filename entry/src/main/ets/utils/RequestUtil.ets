@@ -5,6 +5,7 @@ import http from '@ohos.net.http'
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant' // 消息发送者角色
   content: string                        // 消息内容
+  duration?: number;
 }
 
 // 定义发送给 DeepSeek 接口的请求体结构

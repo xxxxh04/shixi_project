@@ -68,7 +68,7 @@ struct Advertising {
   build() {
     Stack() {
       // 广告背景图
-      Image($r('app.media.advertising'))
+      Image($r('app.media.advertising1'))
         .width('100%')
         .height('100%')
         .objectFit(ImageFit.Cover)
